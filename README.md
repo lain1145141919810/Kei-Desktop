@@ -48,8 +48,8 @@ Windows 桌面上的 Live2D AI 助手
 
 准备 Windows、Python 3.11、Node.js 24 和 Git，克隆项目。
 
-    git clone https://github.com/lain1145141919810/lain.git
-    cd lain
+    git clone https://github.com/lain1145141919810/Kei-Desktop.git
+    cd Kei-Desktop
 
 按[部署与迁移指南](docs/MIGRATION.zh.md)安装后台、语音依赖和角色运行环境，然后启动。
 
