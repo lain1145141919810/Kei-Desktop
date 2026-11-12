@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="KeiDesktop/assets/branding/kei-logo.png" width="180" alt="Kei Desktop Logo">
+
 # Kei Desktop
 
 **与你交谈，陪你阅读，也能把工作交给她。**

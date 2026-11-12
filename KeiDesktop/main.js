@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain, shell, screen, globalShortcut } = require("electron");
 const path = require("path");
+const KEI_ICON = path.join(__dirname, "assets", "branding", process.platform === "win32" ? "kei-logo.ico" : "kei-logo.png");
 const { randomUUID } = require("crypto");
 
 let mainWindow;
@@ -12,6 +13,7 @@ function openAdmin() {
         return;
     }
     adminWindow = new BrowserWindow({
+        icon: KEI_ICON,
         width: 1040, height: 780, title: "Kei Desktop 管理",
         webPreferences: { preload: path.join(__dirname, "admin-preload.js"), contextIsolation: true, nodeIntegration: false },
     });
@@ -84,6 +86,7 @@ async function publishRuntimeEvent(event) {
 
 function createWindow() {
     mainWindow = new BrowserWindow({
+        icon: KEI_ICON,
         width: 1280,
         height: 720,
         transparent: true,
