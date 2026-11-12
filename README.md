@@ -9,6 +9,18 @@ Kei 是运行在 Windows 上的角色桌面助手。Electron 主窗口通过本�
 | AstrBot-plugins | 已部署的六个插件及 AstrBot 兼容补丁 |
 | GPT-SoVITS-overlay | Kei 的语音服务入口、监督脚本和路径配置 |
 
+## 实机展示
+
+2026-11-12 原机运行截图。完整窗口展示角色、概览和输入框，小窗展示登录气泡及返回控制。
+
+![完整窗口](docs/screenshots/full-window.png)
+
+![小窗模式](docs/screenshots/compact-mode.png)
+
+## 开源许可与借物
+
+本项目自有代码采用 [MIT License](LICENSE)。第三方组件及素材的来源、原许可位置和待核实项见[借物表与第三方声明](THIRD_PARTY_NOTICES.md)。
+
 ## 在新 Windows 机器上部署
 
 1. 准备 D: 盘、Python 3.11（原机 3.11.9）、Node 24 和 Git。部署脚本沿用原机的 D:/KeiDesktop 与 D:/KeiRuntime。完整运行还需要原机的语音权重和 ASR 模型。
