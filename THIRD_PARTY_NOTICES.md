@@ -11,12 +11,6 @@
 | Electron | [electron/electron](https://github.com/electron/electron) | 桌面运行时；依赖本身的许可适用。 |
 | DSH | @deepseek-ai/dsh | 执行器与原生子 agent。通过安装包获取，适用该包与模型服务条款。 |
 | Codex CLI | [openai/codex](https://github.com/openai/codex) | 可选执行器。通过包管理器安装，适用其自身许可和服务条款。 |
-| DeepSeek 搜索插件 | [SkyL3gend](https://github.com/SkyL3gend/astrbot_plugin_deepseek_search) | 本地插件副本附 MIT License 及作者署名。 |
-| 识人术插件 | [Moncak / Yue-bin](https://github.com/Yue-bin/astrbot_plugin_maskoff) | 保留插件目录原 LICENSE 与作者元数据。 |
-| 记忆插件 | [menglimi](https://github.com/menglimi/astrbot_plugin_memory_companion) | 保留作者与来源。当前副本未发现独立 LICENSE，许可状态待核实。 |
-| 私聊陪伴插件 | [menglimi](https://github.com/menglimi/astrbot_plugin_private_companion) | 保留作者与来源。当前副本未发现独立 LICENSE，许可状态待核实。 |
-| 现实陪伴插件 | [menglimi](https://github.com/menglimi/astrbot_plugin_reality_companion) | 保留作者与来源。当前副本未发现独立 LICENSE，许可状态待核实。 |
-| Amadeus | [Code-Amadeus/Amadeus](https://github.com/Code-Amadeus/Amadeus) | 由项目拥有者指定的体验参考。此处仅致谢参考来源，不据此声明取得其角色资产的授权。 |
 | Kei 角色模型、表情、动作及 CH0335 视频 | 本机提供的 Kei_Model_Physics、CH0335 资源 | 用于角色表现和截图。原始素材作者、游戏权利归属及再分发条件待补充核实；不纳入自有代码 MIT 授权。 |
 | 场景背景、工作立绘和登录音频 | 本机 assets/ 与运行资源中的素材 | 用于界面展示。当前素材未带完整逐文件来源；作者与使用条件待补充。 |
 | 凯伊 3D 设计参考 | alin，原文件名见 assets/character/kei/3d-reference.md | 已有参考说明中的来源标注；参考原文件的许可仍需向原作者确认。 |

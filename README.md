@@ -1,52 +1,70 @@
+<div align="center">
+
 # Kei Desktop
 
-Kei 是运行在 Windows 上的角色桌面助手。Electron 主窗口通过本机 KeiRuntime 连接 Live2D、语音、DSH/Codex 和 AstrBot。此仓库保存可迁移的应用代码、角色运行素材、依赖清单及本机服务适配层。
+**与你交谈，陪你阅读，也能把工作交给她。**
 
-| 目录 | 内容 |
+Windows 桌面上的 Live2D AI 助手
+
+[功能](#功能) · [实机展示](#实机展示) · [部署与迁移](docs/MIGRATION.zh.md) · [模型配置](KeiRuntime/data/DSH-MODELS.zh.md)
+
+</div>
+
+![Kei Desktop 完整窗口](docs/screenshots/full-window.png)
+
+## 功能
+
+| 日常陪伴 | 工作与学习 |
 |---|---|
-| KeiDesktop | 桌面端、管理页、角色模型和场景、已构建的 Live2D 渲染器、测试、启动器 |
-| KeiRuntime | FastAPI、语音输入输出、会话续接、存储管理、执行器、AstrBot 转交 |
-| AstrBot-plugins | 已部署的六个插件及 AstrBot 兼容补丁 |
-| GPT-SoVITS-overlay | Kei 的语音服务入口、监督脚本和路径配置 |
+| **语音与文字对话** — 输入问题或直接开口，字幕、口型与表情跟随语音播放 | **任务执行** — 把工作交给 DSH 或 Codex，查看进展和执行结果 |
+| **桌面小窗** — 让凯伊留在桌面，用气泡交流，随时回到完整窗口 | **子 agent 分工** — 自动委派、先询问或手动指定执行与复核模型 |
+| **对话续接** — 查看历史、选择旧对话继续，长对话通过摘要开启下一段 | **文件上下文** — 拖入文件，让执行器带着资料完成任务 |
+| **屏幕陪伴** — 开启观察后，让凯伊了解你眼前的工作 | **PDF 阅读** — 围绕选中文字提问，记录阅读计划与进度 |
+| **存储管理** — 按日期展开记录，清理上下文，释放空闲执行器 | **专注计时** — 在对话旁使用番茄钟，安排工作与休息 |
 
 ## 实机展示
 
-2026-11-12 原机运行截图。完整窗口展示角色、概览和输入框，小窗展示登录气泡及返回控制。
+### 留在桌面的凯伊
 
-![完整窗口](docs/screenshots/full-window.png)
+小窗保留角色、对话气泡和输入入口。双击角色、按 Esc 或 Ctrl + Alt + K，可以回到完整窗口。
 
-![小窗模式](docs/screenshots/compact-mode.png)
+![Kei Desktop 小窗模式](docs/screenshots/compact-mode.png)
 
-## 开源许可与借物
+### 专注一会儿
 
-本项目自有代码采用 [MIT License](LICENSE)。第三方组件及素材的来源、原许可位置和待核实项见[借物表与第三方声明](THIRD_PARTY_NOTICES.md)。
+打开计时器，在聊天与工作之间安排一段专注时间。
 
-## 在新 Windows 机器上部署
+![番茄钟](docs/screenshots/focus-timer.png)
 
-1. 准备 D: 盘、Python 3.11（原机 3.11.9）、Node 24 和 Git。部署脚本沿用原机的 D:/KeiDesktop 与 D:/KeiRuntime。完整运行还需要原机的语音权重和 ASR 模型。
-2. 克隆本仓库。在用户主目录克隆 GPT-SoVITS 并检出原机版本：
+### 一起读一份 PDF
 
-       git clone https://github.com/RVC-Boss/GPT-SoVITS.git "$env:USERPROFILE/GPT-SoVITS"
-       git -C "$env:USERPROFILE/GPT-SoVITS" checkout 9da7e17efe05041e31d3c3f42c8730ae890397f2
+在阅读器中选中文字，用 Ctrl + Alt + Q 交给凯伊解释、总结或翻译，也可以制定阅读计划。
 
-3. 在本仓库执行 `./Install-KeiFiles.ps1 -WhatIf` 预览路径，再执行 `./Install-KeiFiles.ps1`。脚本拒绝覆盖已有安装。单独更新旧机器时请先备份。
-4. 在 D:/KeiDesktop 以及 D:/KeiDesktop/live2d-official 中分别执行 `npm ci`。在 D:/KeiRuntime 创建虚拟环境并安装依赖：
+![PDF 阅读面板](docs/screenshots/pdf-reading.png)
 
-       py -3.11 -m venv D:/KeiRuntime/.venv
-       D:/KeiRuntime/.venv/Scripts/python.exe -m pip install -r D:/KeiRuntime/requirements-windows.txt
+## 开始使用
 
-5. 安装 uv 并用 `uv tool install --python 3.11 astrbot==4.28.2` 安装 AstrBot。原启动器使用用户目录下的 uv 工具路径。用 AstrBot 管理页重新配置身份、模型提供商、插件和 API 密钥。桌面桥插件首次启动会创建本机专用令牌。将 ASTRBOT_API_KEY 设置为本机用户环境变量。
-6. 在 GPT-SoVITS 目录创建 .venv，按上游说明安装对应 CUDA/PyTorch 依赖，再安装与原环境匹配的 aqua-tts 0.2.0。恢复下方列出的权重和参考音频。
-7. 若使用 DSH，安装 `npm install -g @deepseek-ai/dsh` 并配置自己的 DeepSeek 凭据。若使用 Codex，在 D:/KeiRuntime/tools/codex-cli 执行 `npm ci`，重新登录；核对 data/executors.json 中受验证的程序、工作区和 SHA-256。更换二进制后先做权限测试。
-8. 在 D:/KeiDesktop 运行 `npm test`，再运行 `./Start-Kei.ps1 -CheckOnly`。通过后用 `./Start-Kei.ps1` 启动。在管理页看服务健康状态，发送一条文字消息，确认回复、语音和口型。再用一个临时文本文件验证执行器能读到文件内容。
+准备 Windows、Python 3.11、Node.js 24 和 Git，克隆项目。
 
-## 需要通过私有介质迁移的内容
+    git clone https://github.com/lain1145141919810/lain.git
+    cd lain
 
-- 从原机复制 D:/KeiRuntime/models 和实际启用的语音权重、预训练模型、参考音频。具体文件路径见 voices.json、aqua_astrbot_config.json、KeiRuntime/voice/references.json 以及 v2pro_compat_server.py。使用 V2Pro 时还需其对应的模型目录。训练权重与 GPU 环境未打包。
-- 如需保留聊天历史，先关闭原机桌面端及后台，再复制 KeiRuntime/data/desktop-chat、Electron 用户数据下的 conversations，以及 AstrBot 的 data/plugin_data（原生长期记忆）。数据库请冷备整目录。执行器任务、附件分别在 data/executors、data/executor-workspace；原生 Codex 会话可能位于用户自己的 .codex/sessions。
-- AstrBot 的私有提供商配置、人格、授权身份及插件设置由本人通过加密介质迁移或重新配置。重新登录 GitHub、Codex、DSH 和第三方服务。勿向公开仓库提交这些私有目录、数据库、访问令牌、观察截图或日志。
-- 服务常用端口：17881（KeiRuntime）、17882（AstrBot 桌面桥）、17880/9880（语音）、6185（AstrBot）、5000（Live2D 开发服务）。启动器及部分底层集成依赖 Windows 固定路径。
+按[部署与迁移指南](docs/MIGRATION.zh.md)安装后台、语音依赖和角色运行环境，然后启动。
 
-仓库保留各组件自带的许可和声明。Live2D、角色素材及外部模型按各自条款使用。依赖下载、GPU 语音以及真实账号服务需要在目标机验收。
+    cd D:/KeiDesktop
+    ./Start-Kei.ps1
 
-DSH 主模型和子代理使用 KeiRuntime/data/dsh-models.json；添加模型与重载步骤见 [模型目录说明](KeiRuntime/data/DSH-MODELS.zh.md)。
+DSH 模型目录支持为不同工作分配不同模型。[查看配置方法](KeiRuntime/data/DSH-MODELS.zh.md)
+
+## 项目结构
+
+| 目录 | 用途 |
+|---|---|
+| KeiDesktop/ | Electron 窗口、Live2D、界面与测试 |
+| KeiRuntime/ | 对话、语音、任务执行与会话存储 |
+| AstrBot-plugins/astrbot_plugin_kei/ | Kei 自身的后台桥接 |
+| GPT-SoVITS-overlay/ | 语音服务适配 |
+
+## 开源与致谢
+
+自有代码采用 [MIT License](LICENSE)。素材与第三方组件的作者、来源和许可见[借物表](THIRD_PARTY_NOTICES.md)。
