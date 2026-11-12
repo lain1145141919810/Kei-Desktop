@@ -1,0 +1,931 @@
+/* ============================================================
+   Shell: toolbar, status, dialogue column, composer, backlog,
+   work card. Colours and fonts come from theme.css.
+   Scene and character layout stay in style.css.
+   ============================================================ */
+
+:root {
+    /* Kei stands at 28vw; everything conversational lives to her right. */
+    --column-left: max(16px, 42vw);
+    --column-right: 24px;
+}
+html, body { font-family: var(--font-ui); color: var(--ui-text); }
+
+.ui-panel {
+    border: 1px solid var(--ui-line);
+    background: var(--ui-panel);
+    backdrop-filter: blur(16px) saturate(1.15);
+    box-shadow: var(--ui-shadow);
+}
+
+/* ---------- Window chrome ---------- */
+
+#window-drag-handle {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 450px;
+    height: 48px;
+    z-index: 190;
+    -webkit-app-region: drag;
+}
+
+#shell-toolbar {
+    position: fixed;
+    top: 12px;
+    right: 14px;
+    z-index: 250;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px;
+    border-radius: 22px;
+    -webkit-app-region: no-drag;
+}
+.lifecycle-opening #shell-toolbar,
+.lifecycle-closing #shell-toolbar { opacity: 0; visibility: hidden; pointer-events: none; }
+
+.shell-button {
+    height: 32px;
+    min-width: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 12px 0 9px;
+    border: 0;
+    border-radius: 16px;
+    background: transparent;
+    color: var(--ui-text);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 140ms ease, color 140ms ease;
+}
+.shell-button.icon-only { padding: 0; }
+.shell-button svg { width: 17px; height: 17px; }
+.shell-button:hover { background: var(--ui-sunken); }
+.shell-button[aria-expanded="true"] { background: var(--ui-accent); color: var(--ui-on-accent); }
+:is(.shell-button, .sheet-tool, .backlog-item, #composer-send, #power-button):focus-visible {
+    outline: 2px solid var(--ui-accent);
+    outline-offset: 2px;
+}
+#observe-dot, #compact-observe { display: block; width: 8px; height: 8px; border-radius: 50%; background: var(--ui-accent); animation: observe-pulse 2s ease-in-out infinite; }
+#observe-dot[hidden] { display: none; }
+@keyframes observe-pulse { 50% { opacity: .35; } }
+#pomodoro-chip { font-variant-numeric: tabular-nums; }
+#pomodoro-button[data-running="true"] { color: var(--ui-accent); }
+#pomodoro-button[data-running="true"][data-phase$="break"] { color: var(--ui-ok); }
+
+#power-button {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    color: #fff;
+    background: #d63a4c;
+    cursor: pointer;
+    transition: background 140ms ease;
+}
+#power-button svg { width: 17px; height: 17px; }
+#power-button * { pointer-events: none; }
+#power-button:hover { background: #ea4c5f; }
+#power-button:active { background: #b02a3b; }
+
+#status {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 28px;
+    padding: 0 12px 0 10px;
+    border-radius: 14px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ui-sub);
+    -webkit-app-region: no-drag;
+}
+#connection-dot { width: 7px; height: 7px; border-radius: 50%; background: #999; }
+.lifecycle-opening #status,
+.lifecycle-closing #status { visibility: hidden; }
+
+/* ---------- Dialogue column ---------- */
+
+#subtitle-container {
+    position: absolute;
+    left: var(--column-left);
+    right: var(--column-right);
+    bottom: 20px;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+/* What the user last said: a small bubble on the user's side. */
+#user-echo {
+    align-self: flex-end;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 82%;
+    padding: 8px 14px;
+    border-radius: 16px 16px 4px 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 180ms ease, transform 200ms ease;
+}
+#user-echo.visible { opacity: 1; transform: none; }
+#user-echo-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-echo-wait { display: none; flex: none; gap: 4px; }
+#user-echo.is-waiting .user-echo-wait { display: inline-flex; }
+.user-echo-wait i {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--ui-accent);
+    animation: kei-wait 1.2s ease-in-out infinite;
+}
+.user-echo-wait i:nth-child(2) { animation-delay: .15s; }
+.user-echo-wait i:nth-child(3) { animation-delay: .3s; }
+@keyframes kei-wait { 0%, 60%, 100% { opacity: .25; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+
+/* Kei's line. #subtitle-chinese is a legacy id: it holds the spoken Japanese. */
+#subtitle {
+    position: relative;
+    padding: 26px 26px 20px;
+    border-radius: 6px 20px 20px 20px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 180ms ease, transform 220ms ease;
+}
+#subtitle.visible { opacity: 1; transform: none; }
+/* app.js keeps the box "visible" between lines; an empty card is just noise. */
+#subtitle.visible:has(#subtitle-chinese:empty) { opacity: 0; transform: translateY(8px); }
+.dialogue-speaker {
+    position: absolute;
+    top: -13px;
+    left: 18px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border-radius: 13px;
+    background: var(--ui-accent);
+    color: var(--ui-on-accent);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .12em;
+}
+.dialogue-speaker span { font-size: 9px; letter-spacing: .22em; opacity: .8; }
+.dialogue-rule { display: none; }
+#subtitle-japanese { display: none; }
+#subtitle-chinese {
+    font-family: var(--font-line);
+    font-size: clamp(18px, 1.7vw, 23px);
+    line-height: 1.75;
+    font-weight: 600;
+    letter-spacing: .02em;
+    overflow-wrap: anywhere;
+    max-height: 7em;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+.dialogue-indicator {
+    position: absolute;
+    right: 18px;
+    bottom: 12px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ui-accent);
+    opacity: 0;
+}
+.speaking #subtitle.visible .dialogue-indicator { animation: dialogue-cue 1.1s ease-in-out infinite; }
+@keyframes dialogue-cue { 0%, 100% { opacity: .25; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.15); } }
+
+/* ---------- Composer ---------- */
+
+#composer {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 6px 6px 6px 18px;
+    border-radius: 24px;
+    pointer-events: auto;
+    transition: border-color 140ms ease;
+}
+#composer:focus-within { border-color: var(--ui-accent); }
+#composer-input {
+    flex: 1;
+    min-width: 0;
+    height: 34px;
+    max-height: 98px;
+    padding: 6px 0;
+    border: 0;
+    outline: 0;
+    resize: none;
+    background: transparent;
+    color: var(--ui-text);
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 22px;
+    user-select: text;
+    scrollbar-width: thin;
+}
+#composer-input::placeholder { color: var(--ui-sub); }
+#composer-send {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: var(--ui-accent);
+    color: var(--ui-on-accent);
+    cursor: pointer;
+    transition: opacity 140ms ease, transform 140ms ease;
+}
+#composer-send svg { width: 17px; height: 17px; }
+#composer-send:hover:not(:disabled) { transform: translateX(1px); }
+#composer-send:disabled { background: var(--ui-sunken); color: var(--ui-sub); cursor: default; }
+#composer-status {
+    position: absolute;
+    left: 18px;
+    top: 100%;
+    margin-top: 3px;
+    font-size: 11px;
+    color: var(--ui-sub);
+    pointer-events: none;
+}
+#composer-status[data-tone="error"] {
+    top: auto;
+    bottom: 100%;
+    margin: 0 0 6px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    background: var(--ui-bad);
+    color: #fff;
+    font-size: 12px;
+}
+
+/* ---------- Work card (scene_controller.js) ---------- */
+
+#scene-work-card {
+    position: absolute;
+    left: var(--column-left);
+    right: var(--column-right);
+    top: 64px;
+    /* Leave room for the dialogue column below (echo + 4-line card + composer). */
+    max-height: calc(100vh - 64px - 300px);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 24px;
+    border: 1px solid var(--ui-line);
+    border-radius: 20px;
+    background: var(--ui-panel);
+    backdrop-filter: blur(16px) saturate(1.15);
+    box-shadow: var(--ui-shadow);
+    color: var(--ui-text);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 220ms ease, transform 240ms ease, visibility 240ms;
+}
+#window[data-scene="cg2"] #scene-work-card,
+#window[data-work-state="result"] #scene-work-card { opacity: 1; visibility: visible; transform: none; }
+#window[data-work-state="result"] #scene-work-card { pointer-events: auto; }
+.scene-work-kicker { font-size: 10px; font-weight: 700; letter-spacing: .26em; color: var(--ui-accent); }
+.scene-work-title { margin-top: 6px; font-size: clamp(19px, 1.8vw, 24px); font-weight: 700; line-height: 1.35; }
+.scene-work-activity { margin-top: 4px; font-size: 14px; color: var(--ui-sub); }
+.scene-work-steps { display: none; margin: 12px 0 0; padding: 0; list-style: none; font-size: 13px; line-height: 1.5; }
+#window[data-scene="cg2"] .scene-work-steps:not(:empty) { display: block; }
+.scene-work-step { margin-top: 6px; padding: 8px 12px; border-radius: 10px; background: var(--ui-sunken); white-space: pre-line; overflow-wrap: anywhere; }
+.scene-work-step-running { background: var(--ui-accent-soft); box-shadow: inset 3px 0 0 var(--ui-accent); animation: kei-work-pulse 1.8s ease-in-out infinite; }
+.scene-work-step-failed { color: var(--ui-bad); }
+@keyframes kei-work-pulse { 50% { opacity: .72; } }
+.scene-work-findings { display: none; margin-top: 8px; font-size: 12px; line-height: 1.5; color: var(--ui-sub); }
+#window[data-scene="cg2"] .scene-work-findings:not(:empty) { display: block; }
+.scene-work-finding { margin-top: 6px; padding: 8px 12px; border: 1px dashed var(--ui-line); border-radius: 10px; white-space: pre-line; overflow-wrap: anywhere; }
+.scene-result-summary { display: none; margin: 12px 0 0; font-size: 15px; line-height: 1.7; white-space: pre-line; overflow-wrap: anywhere; user-select: text; }
+#window[data-work-state="result"] .scene-result-summary:not(:empty) { display: block; }
+.scene-work-sources { display: none; margin-top: 12px; font-size: 12px; color: var(--ui-sub); }
+#window[data-work-state="result"] .scene-work-sources:not(:empty) { display: block; }
+
+/* ---------- Backlog sheet ---------- */
+
+#backlog-scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 110;
+    background: var(--ui-scrim);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 200ms ease, visibility 200ms;
+    -webkit-app-region: no-drag;
+}
+#backlog {
+    position: absolute;
+    top: 62px;
+    bottom: 24px;
+    left: 50%;
+    z-index: 120;
+    width: min(720px, calc(100vw - 40px));
+    display: flex;
+    flex-direction: column;
+    border-radius: 22px;
+    background: var(--ui-panel-solid);
+    border: 1px solid var(--ui-line);
+    box-shadow: var(--ui-shadow);
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, 14px);
+    transition: opacity 200ms ease, transform 240ms cubic-bezier(.22, .61, .36, 1), visibility 240ms;
+    -webkit-app-region: no-drag;
+}
+.backlog-open #backlog-scrim { opacity: 1; visibility: visible; }
+.backlog-open #backlog { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+.lifecycle-opening :is(#backlog, #backlog-scrim),
+.lifecycle-closing :is(#backlog, #backlog-scrim) { display: none; }
+
+.backlog-header { display: flex; align-items: center; gap: 12px; padding: 16px 16px 14px 24px; border-bottom: 1px solid var(--ui-line); }
+.backlog-heading { flex: 1; min-width: 0; }
+.backlog-kicker { font-size: 10px; font-weight: 700; letter-spacing: .26em; color: var(--ui-accent); }
+#backlog-title { margin-top: 2px; font-size: 18px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sheet-tool {
+    flex: none;
+    height: 32px;
+    padding: 0 14px;
+    border: 1px solid var(--ui-line);
+    border-radius: 16px;
+    background: transparent;
+    color: var(--ui-text);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 140ms ease;
+}
+.sheet-tool:hover { background: var(--ui-sunken); }
+.sheet-danger { color: var(--ui-bad); }
+.sheet-danger[data-confirm] { background: var(--ui-bad); border-color: var(--ui-bad); color: #fff; }
+
+.backlog-search { display: block; padding: 14px 24px 0; }
+.backlog-search[hidden] { display: none; }
+#backlog-search {
+    width: 100%;
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid var(--ui-line);
+    border-radius: 19px;
+    outline: 0;
+    background: var(--ui-sunken);
+    color: var(--ui-text);
+    font-family: inherit;
+    font-size: 14px;
+    user-select: text;
+}
+#backlog-search:focus { border-color: var(--ui-accent); }
+#backlog-search::placeholder { color: var(--ui-sub); }
+
+#backlog-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 18px 24px;
+    scrollbar-width: thin;
+    overscroll-behavior: contain;
+    user-select: text;
+}
+.backlog-empty { margin: 48px 8px; text-align: center; font-size: 14px; line-height: 1.8; color: var(--ui-sub); }
+
+.log-entry { max-width: 84%; margin-bottom: 18px; }
+.log-meta { display: flex; align-items: baseline; gap: 8px; margin-bottom: 5px; font-size: 11px; color: var(--ui-sub); }
+.log-name { font-size: 12px; font-weight: 700; letter-spacing: .1em; color: var(--ui-accent); }
+.log-entry p { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.log-text { font-size: 15px; line-height: 1.8; }
+.log-kei .log-text { font-family: var(--font-line); font-weight: 600; }
+.log-summary { margin-top: 8px !important; padding: 9px 12px; border-radius: 10px; background: var(--ui-accent-soft); font-size: 13px; line-height: 1.65; }
+.log-user { margin-left: auto; }
+.log-user .log-meta { justify-content: flex-end; }
+.log-user .log-name { color: var(--ui-sub); }
+.log-user .log-text { padding: 9px 14px; border-radius: 16px 16px 4px 16px; background: var(--ui-sunken); }
+
+.backlog-day { margin: 18px 4px 8px; font-size: 11px; font-weight: 700; letter-spacing: .16em; color: var(--ui-sub); }
+.backlog-day:first-child { margin-top: 0; }
+.backlog-item {
+    display: block;
+    width: 100%;
+    margin-bottom: 6px;
+    padding: 12px 14px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: var(--ui-sunken);
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 140ms ease;
+}
+.backlog-item:hover { border-color: var(--ui-accent); }
+.backlog-item-head { display: flex; align-items: baseline; gap: 12px; }
+.backlog-item-title { flex: 1; min-width: 0; font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.backlog-item-meta { flex: none; font-size: 11px; color: var(--ui-sub); }
+.backlog-item-snippet { margin-top: 5px; font-size: 12px; line-height: 1.6; color: var(--ui-sub); overflow-wrap: anywhere; }
+
+.backlog-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 54px; padding: 10px 16px 10px 24px; border-top: 1px solid var(--ui-line); font-size: 11px; color: var(--ui-sub); }
+
+@media (max-width: 900px) {
+    :root { --column-left: 16px; --column-right: 16px; }
+    .shell-button:not(.icon-only) span:not(#pomodoro-chip) { display: none; }
+    .shell-button:not(.icon-only) { padding: 0 8px; }
+    #window-drag-handle { right: 290px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #subtitle, #user-echo, #backlog, #scene-work-card { transition: opacity 100ms linear; }
+    .speaking #subtitle.visible .dialogue-indicator, .user-echo-wait i, .scene-work-step-running { animation: none; }
+}
+
+/* ---------- Popovers (Pomodoro, quick controls) ---------- */
+
+.popover {
+    position: fixed;
+    top: 62px;
+    right: 14px;
+    z-index: 260;
+    width: 292px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 18px;
+    border-radius: 18px;
+    background: var(--ui-panel-solid);
+    -webkit-app-region: no-drag;
+}
+.popover[hidden] { display: none; }
+.lifecycle-opening .popover, .lifecycle-closing .popover { display: none; }
+.popover-kicker { font-size: 11px; font-weight: 700; letter-spacing: .2em; color: var(--ui-accent); }
+.popover-note { font-size: 12px; line-height: 1.6; color: var(--ui-sub); overflow-wrap: anywhere; }
+.popover-row { display: flex; gap: 6px; }
+#pomodoro-time { margin: -8px 0 -2px; font-size: 54px; font-weight: 700; line-height: 1.1; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+
+.pill {
+    flex: 1;
+    height: 34px;
+    padding: 0 12px;
+    border: 1px solid var(--ui-line);
+    border-radius: 17px;
+    background: transparent;
+    color: var(--ui-text);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 140ms ease;
+}
+.pill:hover { background: var(--ui-sunken); }
+.pill.primary { border-color: var(--ui-accent); background: var(--ui-accent); color: var(--ui-on-accent); }
+.pill.wide { flex: none; width: 100%; }
+
+.segmented { display: flex; padding: 3px; border-radius: 12px; background: var(--ui-sunken); }
+.segmented button {
+    flex: 1;
+    height: 30px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--ui-sub);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.segmented button[aria-pressed="true"] { background: var(--ui-panel-solid); color: var(--ui-text); box-shadow: 0 1px 4px rgba(0, 0, 0, .14); }
+.segmented button:disabled { opacity: .4; cursor: default; }
+
+.quick-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.quick-block { display: flex; flex-direction: column; gap: 6px; }
+.quick-title { font-size: 13px; font-weight: 700; }
+.switch {
+    flex: none;
+    width: 46px;
+    height: 26px;
+    padding: 3px;
+    border: 0;
+    border-radius: 13px;
+    background: var(--ui-line);
+    cursor: pointer;
+    transition: background 160ms ease;
+}
+.switch i { display: block; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .25); transition: transform 160ms ease; }
+.switch[aria-checked="true"] { background: var(--ui-accent); }
+.switch[aria-checked="true"] i { transform: translateX(20px); }
+:is(.pill, .switch, .segmented button, .file-chip-remove):focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 2px; }
+
+/* ---------- Toast ---------- */
+
+#shell-toast {
+    position: fixed;
+    top: 62px;
+    left: 50%;
+    z-index: 240;
+    max-width: min(520px, calc(100vw - 40px));
+    padding: 10px 18px;
+    border-radius: 18px;
+    background: var(--ui-panel-solid);
+    font-size: 14px;
+    font-weight: 700;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, -8px);
+    transition: opacity 200ms ease, transform 220ms ease, visibility 220ms;
+    pointer-events: none;
+}
+#shell-toast.visible { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+
+/* ---------- Dropped files ---------- */
+
+#composer { flex-wrap: wrap; }
+#composer-files { flex: 0 0 100%; display: flex; flex-wrap: wrap; gap: 6px; }
+#composer-files:empty { display: none; }
+#composer-files:not(:empty) { padding: 6px 0 2px; }
+.file-chip { display: inline-flex; align-items: center; gap: 6px; max-width: 240px; height: 26px; padding: 0 4px 0 10px; border-radius: 13px; background: var(--ui-accent-soft); font-size: 12px; font-weight: 700; }
+.file-chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-chip-remove { width: 20px; height: 20px; border: 0; border-radius: 50%; background: transparent; color: var(--ui-sub); font-size: 14px; line-height: 1; cursor: pointer; }
+.file-chip-remove:hover { background: var(--ui-sunken); color: var(--ui-text); }
+.file-dragging #composer { border-color: var(--ui-accent); box-shadow: 0 0 0 3px var(--ui-accent-soft), var(--ui-shadow); }
+.file-dragging #composer::after {
+    content: "ここにドロップして、実行エージェントに渡す";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    border-radius: inherit;
+    background: var(--ui-panel-solid);
+    color: var(--ui-accent);
+    font-size: 14px;
+    font-weight: 700;
+    pointer-events: none;
+}
+
+/* ---------- Backlog: task steps and attachments ---------- */
+
+.log-files { margin-top: 5px !important; font-size: 12px; color: var(--ui-sub); text-align: right; }
+.log-steps { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.log-step { display: inline-flex; align-items: center; gap: 6px; padding: 3px 5px 3px 10px; border-radius: 12px; background: var(--ui-sunken); font-size: 12px; }
+.log-step-mark { padding: 1px 7px; border-radius: 9px; background: var(--ui-panel-solid); font-size: 10px; font-weight: 700; color: var(--ui-ok); }
+.log-step-failed .log-step-mark { color: var(--ui-bad); }
+.log-step-cancelled .log-step-mark, .log-step-running .log-step-mark { color: var(--ui-sub); }
+
+/* ---------- Compact mode: only Kei ----------
+   Nothing is resized or moved. The scene and the panels fade out, Kei stays
+   exactly where she is, and main.js lets the mouse through the empty area. */
+
+:root {
+    --shell-fade: 420ms;
+    /* Kei's clickable area: roughly her body inside the Live2D canvas. */
+    --kei-hit-width: calc(var(--kei-height) * .42);
+}
+
+:is(#scene-background-layer, #environment-fx-layer, #character-shadow, #character-fx-layer, #scene-ui-layer, #status, #shell-toolbar) {
+    transition: opacity var(--shell-fade) ease, visibility 0s;
+}
+body.compact :is(#scene-background-layer, #environment-fx-layer, #character-shadow, #character-fx-layer, #scene-ui-layer, #status, #shell-toolbar) {
+    opacity: 0 !important;
+    visibility: hidden;
+    pointer-events: none;
+    /* Stay visible until the fade has finished. */
+    transition: opacity var(--shell-fade) ease, visibility 0s var(--shell-fade);
+}
+body.compact :is(#backlog, #backlog-scrim, #reading, #reading-scrim, #shell-toast, .popover, #window-drag-handle) { display: none !important; }
+/* The seated work illustration fades with the scene, so the live model stays. */
+body.compact #character-stage { opacity: 1 !important; }
+
+/* In compact mode the dialogue floats above Kei's head as a speech bubble.
+   It cannot slide there sensibly, so it fades in at its new place (two
+   animation names so that it restarts in both directions). */
+:root {
+    --compact-bubble-width: min(360px, 46vw);
+    /* How far the bubble may dip over the top of Kei's canvas. */
+    --compact-bubble-overlap: 5vh;
+    --compact-bubble-bottom: calc(var(--kei-bottom) + var(--kei-height) - var(--compact-bubble-overlap));
+}
+@keyframes kei-column-compact { from { opacity: 0; } to { opacity: 1; } }
+@keyframes kei-column-full { from { opacity: 0; } to { opacity: 1; } }
+#subtitle-container { animation: kei-column-full var(--shell-fade) ease both; }
+body.compact #subtitle-container {
+    /* Centred on Kei, but never past the window's left edge. */
+    left: max(8px, calc(var(--kei-anchor-x) - var(--compact-bubble-width) / 2));
+    right: auto;
+    width: var(--compact-bubble-width);
+    bottom: var(--compact-bubble-bottom);
+    gap: 6px;
+    align-items: center;
+    animation-name: kei-column-compact;
+}
+body.compact #subtitle {
+    align-self: stretch;
+    padding: 18px 16px 12px;
+    border-radius: 18px;
+    /* Solid, so the tail below matches it exactly. */
+    background: var(--ui-panel-solid);
+}
+/* The tail that points down at Kei. */
+body.compact #subtitle::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -7px;
+    width: 14px;
+    height: 14px;
+    border-right: 1px solid var(--ui-line);
+    border-bottom: 1px solid var(--ui-line);
+    background: var(--ui-panel-solid);
+    transform: translateX(-50%) rotate(45deg);
+}
+body.compact .dialogue-indicator { display: none; }
+body.compact #subtitle-chinese {
+    font-size: 15px;
+    line-height: 1.6;
+    /* Whatever height is left between Kei's head and the top of the window. */
+    max-height: max(72px, calc(100vh - var(--compact-bubble-bottom) - 62px));
+}
+/* Above her head there is only room for one thing at a time: what you said
+   is shown while Kei is still thinking about it, then her line replaces it. */
+body.compact #user-echo:not(.is-waiting) { display: none; }
+body.compact #user-echo { align-self: center; max-width: 100%; border-radius: 16px; }
+/* The mini composer sits at Kei's feet instead of on top of the bubble. */
+body.compact:not(.compact-typing) #composer { display: none; }
+body.compact #composer {
+    position: fixed;
+    left: max(8px, calc(var(--kei-anchor-x) - var(--compact-bubble-width) / 2));
+    bottom: calc(var(--kei-bottom) + 10px);
+    width: var(--compact-bubble-width);
+    background: var(--ui-panel-solid);
+}
+
+/* What Kei is working on, when the work card is not on screen. */
+#compact-work { display: none; }
+body.compact #window[data-work-state="working"] #compact-work {
+    display: block;
+    align-self: center;
+    padding: 6px 14px;
+    border-radius: 14px;
+    background: var(--ui-panel-solid);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ui-accent);
+}
+#compact-work::after { content: "作業しています…"; }
+#window[data-work-activity="searching"] #compact-work::after { content: "資料を検索しています…"; }
+#window[data-work-activity="reading"] #compact-work::after { content: "資料を読んでいます…"; }
+#window[data-work-activity="computing"] #compact-work::after { content: "計算・分析しています…"; }
+#window[data-work-activity="controlling"] #compact-work::after { content: "パソコンを操作しています…"; }
+#window[data-work-activity="organizing"] #compact-work::after { content: "結果を整理しています…"; }
+
+#compact-zone {
+    position: fixed;
+    left: var(--kei-anchor-x);
+    bottom: var(--kei-bottom);
+    z-index: 240;
+    width: var(--kei-hit-width);
+    height: var(--kei-height);
+    transform: translateX(-50%);
+    display: none;
+    -webkit-app-region: no-drag;
+}
+body.compact #compact-zone { display: block; }
+.lifecycle-closing #compact-zone { display: none !important; }
+#compact-surface { position: absolute; inset: 0; cursor: grab; }
+.compact-dragging #compact-surface { cursor: grabbing; }
+#compact-controls {
+    position: absolute;
+    top: 4%;
+    left: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 6px;
+    border-radius: 20px;
+    background: var(--ui-panel-solid);
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+/* Shown on hover, and for a few seconds after entering so they can be found. */
+:is(.compact-hover, .compact-hint) #compact-controls, #compact-controls:focus-within { opacity: 1; transform: none; }
+.compact-dragging #compact-controls { opacity: 0; }
+body:not(.observing) #compact-observe { display: none; }
+#compact-controls button { width: 32px; height: 32px; display: grid; place-items: center; border: 0; border-radius: 50%; background: var(--ui-sunken); color: var(--ui-text); cursor: pointer; }
+#compact-controls button svg { width: 15px; height: 15px; }
+#compact-controls button:hover, #compact-talk[aria-pressed="true"] { background: var(--ui-accent); color: var(--ui-on-accent); }
+#compact-controls button:focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 2px; }
+
+/* ---------- Idle overview ---------- */
+
+#overview {
+    position: absolute;
+    left: var(--column-left);
+    right: var(--column-right);
+    top: 64px;
+    z-index: 45;
+    padding: 16px 18px 12px;
+    border-radius: 20px;
+    transition: opacity var(--shell-fade) ease, transform var(--shell-fade) ease, visibility 0s;
+    -webkit-app-region: no-drag;
+}
+#overview[hidden] { display: none; }
+/* The work card takes this place while Kei is searching or working. */
+#window:is([data-scene="cg2"], [data-work-state="result"], [data-work-state="fading"]) #overview {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition: opacity 220ms ease, transform 240ms ease, visibility 0s 240ms;
+}
+.lifecycle-opening #overview, .lifecycle-closing #overview { visibility: hidden; }
+.overview-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+#overview-date { font-size: 12px; color: var(--ui-sub); }
+#overview-title { margin: 2px 0 8px; font-size: 18px; font-weight: 700; }
+#overview-rows { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2px 14px; }
+.overview-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    min-width: 0;
+    padding: 6px 8px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--ui-text);
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: left;
+    cursor: pointer;
+    transition: background 140ms ease;
+}
+.overview-row:hover { background: var(--ui-sunken); }
+.overview-row:focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 1px; }
+.overview-label { flex: none; width: 4.6em; font-size: 11px; font-weight: 700; color: var(--ui-sub); }
+.overview-value { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.overview-row[data-row="last"] { grid-column: 1 / -1; }
+
+/* Compact mode: beside Kei, only while the pointer is on her. Not clickable,
+   so it never holds the pointer and disappears when you move away. */
+body.compact #overview {
+    left: calc(var(--kei-anchor-x) + var(--kei-hit-width) / 2 + 58px);
+    right: auto;
+    top: auto;
+    bottom: calc(var(--kei-bottom) + var(--kei-height) * .38);
+    width: 280px;
+    padding: 12px 12px 8px;
+    background: var(--ui-panel-solid);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(-6px);
+    transition: opacity 180ms ease, transform 180ms ease, visibility 0s 180ms;
+}
+body.compact.compact-hover:not(.compact-dragging, .compact-typing) #overview {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity 180ms ease 250ms, transform 180ms ease 250ms, visibility 0s 250ms;
+}
+body.compact #overview-rows { grid-template-columns: 1fr; }
+body.compact #overview-title { font-size: 15px; margin-bottom: 4px; }
+
+/* ---------- Focus popover: tasks ---------- */
+
+.popover { max-height: calc(100vh - 86px); overflow-y: auto; scrollbar-width: thin; }
+#pomodoro-panel { width: 328px; }
+#focus-current { margin-top: -8px; font-weight: 700; color: var(--ui-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#focus-current:empty, #task-status:empty { display: none; }
+#task-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+#task-list:empty { display: none; }
+.task { display: flex; align-items: center; gap: 6px; padding: 4px 4px 4px 6px; border: 1px solid transparent; border-radius: 10px; }
+.task.is-focus { border-color: var(--ui-accent); background: var(--ui-accent-soft); }
+.task-check { flex: none; width: 20px; height: 20px; padding: 0; border: 1.5px solid var(--ui-sub); border-radius: 6px; background: transparent; color: var(--ui-on-accent); font-size: 12px; line-height: 1; cursor: pointer; }
+.task.is-done .task-check { border-color: var(--ui-ok); background: var(--ui-ok); }
+.task-text { flex: 1; min-width: 0; padding: 4px 2px; border: 0; background: transparent; color: var(--ui-text); font-family: inherit; font-size: 13px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.task.is-done .task-text { color: var(--ui-sub); text-decoration: line-through; cursor: default; }
+.task-blocks { flex: none; font-size: 10px; color: var(--ui-sub); }
+.task-hand { flex: none; height: 24px; padding: 0 9px; border: 1px solid var(--ui-line); border-radius: 12px; background: var(--ui-panel-solid); color: var(--ui-text); font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer; }
+.task-hand:hover { border-color: var(--ui-accent); color: var(--ui-accent); }
+.task-remove { flex: none; width: 22px; height: 22px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--ui-sub); font-size: 14px; line-height: 1; cursor: pointer; }
+.task-remove:hover { background: var(--ui-sunken); color: var(--ui-text); }
+#task-add { display: flex; gap: 6px; }
+#task-input { flex: 1; min-width: 0; height: 34px; padding: 0 12px; border: 1px solid var(--ui-line); border-radius: 17px; outline: 0; background: var(--ui-sunken); color: var(--ui-text); font-family: inherit; font-size: 13px; user-select: text; }
+#task-input:focus { border-color: var(--ui-accent); }
+#task-input::placeholder { color: var(--ui-sub); }
+#task-add .pill { flex: none; }
+:is(.task-check, .task-text, .task-hand, .task-remove):focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 1px; }
+
+@media (prefers-reduced-motion: reduce) {
+    :root { --shell-fade: 100ms; }
+}
+
+/* ---------- Reading sheet ---------- */
+
+#reading-scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 110;
+    background: var(--ui-scrim);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 200ms ease, visibility 200ms;
+    -webkit-app-region: no-drag;
+}
+.sheet {
+    position: absolute;
+    top: 62px;
+    bottom: 24px;
+    left: 50%;
+    z-index: 120;
+    width: min(760px, calc(100vw - 40px));
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--ui-line);
+    border-radius: 22px;
+    background: var(--ui-panel-solid);
+    box-shadow: var(--ui-shadow);
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, 14px);
+    transition: opacity 200ms ease, transform 240ms cubic-bezier(.22, .61, .36, 1), visibility 240ms;
+    -webkit-app-region: no-drag;
+}
+.reading-open #reading-scrim { opacity: 1; visibility: visible; }
+.reading-open #reading { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+.lifecycle-opening :is(#reading, #reading-scrim), .lifecycle-closing :is(#reading, #reading-scrim) { display: none; }
+.sheet-title { margin-top: 2px; font-size: 18px; font-weight: 700; }
+.sheet-body { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 24px 24px; scrollbar-width: thin; overscroll-behavior: contain; }
+.sheet-error { margin: 8px 0; padding: 8px 12px; border-radius: 10px; background: var(--ui-bad); color: #fff; font-size: 13px; }
+.sheet-error:empty { display: none; }
+
+.reading-section { padding-top: 18px; }
+.reading-section h3 { margin: 0 0 6px; font-size: 15px; font-weight: 700; }
+.reading-section h4 { flex: 0 0 100%; margin: 0; font-size: 13px; font-weight: 700; color: var(--ui-sub); }
+.sheet :is(textarea, input[type="text"], input[type="number"]) {
+    padding: 9px 12px;
+    border: 1px solid var(--ui-line);
+    border-radius: 10px;
+    outline: 0;
+    background: var(--ui-sunken);
+    color: var(--ui-text);
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.6;
+    user-select: text;
+}
+.sheet :is(textarea, input):focus { border-color: var(--ui-accent); }
+.sheet ::placeholder { color: var(--ui-sub); }
+#reading-passage { display: block; width: 100%; margin-top: 8px; resize: vertical; font-family: var(--font-line); }
+.reading-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.reading-chips .pill { flex: none; }
+.reading-ask { display: flex; gap: 8px; margin-top: 10px; }
+.reading-ask input { flex: 1; min-width: 0; }
+.reading-ask .pill, .reading-new .pill, .plan-row .pill, .plan-use { flex: none; }
+#reading-ask-status:empty { display: none; }
+
+.plan { margin-top: 10px; padding: 14px 16px; border: 1px solid var(--ui-line); border-radius: 14px; }
+.plan.is-active { border-color: var(--ui-accent); }
+.plan-head { display: flex; align-items: center; gap: 10px; }
+.plan-title { flex: 1; min-width: 0; font-size: 15px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plan-use { height: 28px; font-size: 12px; }
+.plan-use[aria-pressed="true"] { border-color: var(--ui-accent); background: var(--ui-accent-soft); color: var(--ui-accent); }
+.plan-bar { height: 6px; margin: 10px 0 6px; border-radius: 3px; background: var(--ui-sunken); overflow: hidden; }
+.plan-bar i { display: block; height: 100%; border-radius: 3px; background: var(--ui-accent); }
+.plan-meta { font-size: 12px; color: var(--ui-sub); }
+.plan-today { margin-top: 4px; font-size: 14px; font-weight: 700; }
+.plan-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.plan-row input { width: 86px; }
+.plan-row-label { font-size: 13px; color: var(--ui-sub); }
+.plan-notes { margin-top: 10px; font-size: 13px; }
+.plan-notes summary { cursor: pointer; font-weight: 700; color: var(--ui-sub); }
+.plan-note { margin-top: 8px; padding: 8px 12px; border-radius: 10px; background: var(--ui-sunken); user-select: text; }
+.plan-note-meta { font-size: 11px; color: var(--ui-sub); }
+.plan-note-question { font-weight: 700; }
+.plan-note-excerpt { margin-top: 2px; font-size: 12px; color: var(--ui-sub); overflow-wrap: anywhere; }
+.plan-remove { margin-top: 10px; height: 28px; }
+.reading-new { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 14px; padding: 14px 16px; border-radius: 14px; background: var(--ui-sunken); }
+.reading-new #reading-new-title { flex: 1 1 100%; background: var(--ui-panel-solid); }
+.reading-new label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ui-sub); }
+.reading-new input[type="number"] { width: 92px; background: var(--ui-panel-solid); }
+.quick-title small { margin-left: 4px; padding: 1px 6px; border-radius: 8px; background: var(--ui-accent-soft); color: var(--ui-accent); font-size: 10px; }

@@ -1,0 +1,87 @@
+{
+  "Version": 3,
+  "FileReferences": {
+    "Moc": "Kei_Model_Physics.moc3",
+    "Textures": [
+      "Kei_Model_Physics.4096/texture_00.png"
+    ],
+    "Physics": "Kei_Model_Physics.physics3.json",
+    "DisplayInfo": "Kei_Model_Physics.cdi3.json",
+    "Expressions": [
+      {
+        "Name": "Neutral",
+        "File": "Kei_Model_Expressions_expressions/Neutral.exp3.json"
+      },
+      {
+        "Name": "SmallSmile",
+        "File": "Kei_Model_Expressions_expressions/SmallSmile.exp3.json"
+      },
+      {
+        "Name": "Gentle",
+        "File": "Kei_Model_Expressions_expressions/Gentle.exp3.json"
+      },
+      {
+        "Name": "HappyClosed",
+        "File": "Kei_Model_Expressions_expressions/HappyClosed.exp3.json"
+      },
+      {
+        "Name": "Bashful",
+        "File": "Kei_Model_Expressions_expressions/Bashful.exp3.json"
+      },
+      {
+        "Name": "OpenMouth",
+        "File": "Kei_Model_Expressions_expressions/OpenMouth.exp3.json"
+      },
+      {
+        "Name": "Flustered",
+        "File": "Kei_Model_Expressions_expressions/Flustered.exp3.json"
+      },
+      {
+        "Name": "Shadowed",
+        "File": "Kei_Model_Expressions_expressions/Shadowed.exp3.json"
+      },
+      {
+        "Name": "Shout",
+        "File": "Kei_Model_Expressions_expressions/Shout.exp3.json"
+      },
+      {
+        "Name": "Crying",
+        "File": "Kei_Model_Expressions_expressions/Crying.exp3.json"
+      },
+      {
+        "Name": "Serious",
+        "File": "Kei_Model_Expressions_expressions/Serious.exp3.json"
+      },
+      {
+        "Name": "Thoughtful",
+        "File": "Kei_Model_Expressions_expressions/Thoughtful.exp3.json"
+      }
+    ],
+    "Motions": {
+      "Idle": [
+        {
+          "File": "Kei_Model_Physics_motions/Idle.motion3.json",
+          "FadeInTime": 0.5,
+          "FadeOutTime": 0.5
+        }
+      ]
+    }
+  },
+  "Groups": [
+    {
+      "Target": "Parameter",
+      "Name": "EyeBlink",
+      "Ids": [
+        "ParamEyeLOpen",
+        "ParamEyeROpen"
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Name": "LipSync",
+      "Ids": [
+        "ParamMouthOpenY"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "gpt_model": "__USERPROFILE__\\GPT-SoVITS\\GPT_weights_v3\\key-e15.ckpt",
+  "sovits_model": "__USERPROFILE__\\GPT-SoVITS\\SoVITS_weights_v3\\key_e2_s706_l32.pth",
+  "settings": {
+    "top_k": 8,
+    "top_p": 0.87,
+    "temperature": 0.5,
+    "speed": 0.95,
+    "sample_steps": 16,
+    "pause_second": 0.2,
+    "cut_method": "按标点符号切"
+  }
+}

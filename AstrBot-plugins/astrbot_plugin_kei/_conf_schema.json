@@ -1,0 +1,17 @@
+{
+  "screen_action_qq_private_ids": {
+    "description": "允许本机鼠标键盘操作的 QQ 私聊用户 OpenID；同时需要屏幕查看白名单，仍须先截图",
+    "type": "list",
+    "default": []
+  },
+  "screen_view_qq_private_ids": {
+    "description": "允许查看本机屏幕的 QQ 官方机器人私聊用户 OpenID（不开放群聊或鼠标键盘操作）",
+    "type": "list",
+    "default": []
+  },
+  "screen_vision_provider_id": {
+    "description": "本机屏幕理解使用的视觉模型 Provider ID",
+    "type": "string",
+    "default": "Qwen/qwen3.8-omni-flash"
+  }
+}

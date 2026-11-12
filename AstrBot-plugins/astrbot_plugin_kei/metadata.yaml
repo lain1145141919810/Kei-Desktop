@@ -1,0 +1,6 @@
+name: astrbot_plugin_kei
+display_name: Kei Runtime
+desc: 凯伊语音与桌面 Runtime 桥接插件
+version: "0.1.0"
+author: Lain
+astrbot_version: ">4.23.1"

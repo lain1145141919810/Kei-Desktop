@@ -1,0 +1,79 @@
+{
+  "references": [
+    {
+      "id": "kei_neutral_01",
+      "voice_id": "kei_neutral_01",
+      "audio_path": null,
+      "prompt_text": "言わなきゃいけないんですよね？ブルーアーカイブ。",
+      "prompt_language": "日文",
+      "label": "neutral",
+      "enabled": true,
+      "affect": {
+        "valence": 0.0,
+        "arousal": 0.25,
+        "dominance": 0.0,
+        "intensity": 0.25,
+        "warmth": 0.55,
+        "certainty": 0.55,
+        "restraint": 0.70
+      }
+    },
+
+    {
+      "id": "kei_warm_01",
+      "voice_id": "kei_warm_01",
+      "audio_path": null,
+      "prompt_text": "",
+      "prompt_language": "日文",
+      "label": "warm",
+      "enabled": true,
+      "affect": {
+        "valence": 0.55,
+        "arousal": 0.30,
+        "dominance": -0.05,
+        "intensity": 0.40,
+        "warmth": 0.88,
+        "certainty": 0.62,
+        "restraint": 0.72
+      }
+    },
+
+    {
+      "id": "kei_excited_01",
+      "voice_id": "kei_excited_01",
+      "audio_path": null,
+      "prompt_text": "",
+      "prompt_language": "日文",
+      "label": "excited",
+      "enabled": true,
+      "affect": {
+        "valence": 0.70,
+        "arousal": 0.82,
+        "dominance": 0.15,
+        "intensity": 0.82,
+        "warmth": 0.72,
+        "certainty": 0.75,
+        "restraint": 0.25
+      }
+    },
+
+    {
+      "id": "kei_subdued_01",
+      "voice_id": "kei_subdued_01",
+      "audio_path": null,
+      "prompt_text": "",
+      "prompt_language": "日文",
+      "label": "subdued",
+      "enabled": true,
+      "affect": {
+        "valence": -0.40,
+        "arousal": 0.20,
+        "dominance": -0.20,
+        "intensity": 0.38,
+        "warmth": 0.52,
+        "certainty": 0.42,
+        "restraint": 0.85
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "backend": "dsh",
+  "idle_seconds": 600,
+  "task_timeout_seconds": 120,
+  "max_sessions_per_process": 12,
+  "workspace": "D:/KeiRuntime/data/executor-workspace",
+  "dsh_model": "deepseek-v4-flash",
+  "codex_executable": "D:/KeiRuntime/tools/codex-cli/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/codex.exe",
+  "codex_verified_sha256": "2692c8c7bb2cf8b0aefe638741fc90236f4b824c59578ce84994f9de58200993",
+  "codex_validated_workspace": "D:/KeiRuntime/data/executor-workspace"
+}

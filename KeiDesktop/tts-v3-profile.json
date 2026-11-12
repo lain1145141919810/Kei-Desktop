@@ -1,0 +1,4 @@
+{
+  "sovits_model": "__USERPROFILE__\\GPT-SoVITS\\SoVITS_weights_v3\\key_e2_s706_l32.pth",
+  "gpt_model": "__USERPROFILE__\\GPT-SoVITS\\GPT_weights_v3\\key-e15.ckpt"
+}

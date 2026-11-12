@@ -1,0 +1,102 @@
+/* Admin window. Tokens come from theme.css; the theme follows the main window. */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+    margin: 0;
+    display: flex;
+    min-height: 100vh;
+    background: var(--ui-page);
+    color: var(--ui-text);
+    font-family: var(--font-ui);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.side {
+    position: sticky;
+    top: 0;
+    flex: none;
+    width: 176px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 22px 12px 16px;
+    border-right: 1px solid var(--ui-line);
+    background: var(--ui-panel-solid);
+}
+.brand { margin: 0 10px 18px; font-size: 20px; font-weight: 700; letter-spacing: .18em; color: var(--ui-accent); }
+.brand span { margin-left: 8px; font-size: 12px; letter-spacing: .1em; color: var(--ui-sub); }
+.side a { padding: 7px 10px; border-radius: 8px; color: var(--ui-text); text-decoration: none; font-weight: 700; }
+.side a:hover { background: var(--ui-sunken); }
+.side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 6px; }
+#updated { min-height: 1.6em; padding: 0 4px; font-size: 11px; color: var(--ui-sub); }
+
+main { flex: 1; min-width: 0; max-width: 980px; padding: 8px 28px 48px; }
+section { padding-top: 22px; }
+h1 { margin: 0 0 12px; font-size: 18px; font-weight: 700; }
+h1 small { margin-left: 8px; font-size: 12px; font-weight: 400; color: var(--ui-sub); }
+h2 { margin: 0 0 8px; font-size: 14px; font-weight: 700; }
+h3 { margin: 16px 0 6px; font-size: 13px; font-weight: 700; color: var(--ui-sub); }
+
+.grid { display: grid; gap: 12px; }
+.grid.two { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.grid.four { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.card { padding: 16px 18px; border: 1px solid var(--ui-line); border-radius: 14px; background: var(--ui-panel-solid); }
+#runtime, #asr, #mic, #tts { white-space: pre-line; font-size: 13px; line-height: 1.8; }
+.ok { color: var(--ui-ok); }
+.bad { color: var(--ui-bad); }
+
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0; }
+button, select {
+    height: 34px;
+    padding: 0 14px;
+    border: 1px solid var(--ui-accent);
+    border-radius: 17px;
+    background: var(--ui-accent);
+    color: var(--ui-on-accent);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+button:disabled { opacity: .45; cursor: default; }
+button.ghost, select { border-color: var(--ui-line); background: transparent; color: var(--ui-text); }
+button.ghost:hover, select:hover { background: var(--ui-sunken); }
+select option { background: var(--ui-panel-solid); color: var(--ui-text); }
+:is(button, select, textarea, a):focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 2px; }
+
+.state { margin: 6px 0; white-space: pre-line; font-size: 13px; }
+.state:empty, .error:empty { display: none; }
+.error { margin: 6px 0; padding: 8px 12px; border-radius: 10px; background: var(--ui-bad); color: #fff; font-size: 13px; }
+.note { margin: 8px 0 0; font-size: 12px; line-height: 1.7; color: var(--ui-sub); }
+.well { margin: 0; padding: 12px 14px; border-radius: 10px; background: var(--ui-sunken); white-space: pre-wrap; overflow-wrap: anywhere; font-family: inherit; font-size: 13px; }
+.log { height: 220px; overflow: auto; font-size: 12px; }
+textarea {
+    display: block;
+    width: 100%;
+    margin: 10px 0 0;
+    padding: 10px 12px;
+    border: 1px solid var(--ui-line);
+    border-radius: 10px;
+    background: var(--ui-sunken);
+    color: var(--ui-text);
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.7;
+    resize: vertical;
+}
+#bili-qr { max-width: 220px; border-radius: 8px; }
+#bili-qr[hidden] { display: none; }
+
+@media (max-width: 720px) {
+    body { display: block; }
+    .side { position: static; width: auto; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; padding: 10px 12px; border-right: 0; border-bottom: 1px solid var(--ui-line); }
+    .brand { margin: 0 10px 0 4px; }
+    .side-foot { margin: 0 0 0 auto; flex-direction: row; align-items: center; }
+    main { padding: 0 16px 32px; }
+}
+
+#storage-items details { border-bottom: 1px solid var(--ui-line); padding: 6px 0; }
+#storage-items summary { cursor: pointer; padding: 8px 4px; font-weight: 600; }
+#storage-items details p { margin-left: 18px; }

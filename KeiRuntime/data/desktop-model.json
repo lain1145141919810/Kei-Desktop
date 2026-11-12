@@ -1,0 +1,8 @@
+{
+  "provider_id": "deepseek/deepseek-flash",
+  "extra_body": {
+    "thinking": {
+      "type": "disabled"
+    }
+  }
+}

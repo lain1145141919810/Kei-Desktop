@@ -1,0 +1,667 @@
+/* ============================================================
+   Global
+   ============================================================ */
+
+* {
+    box-sizing: border-box;
+}
+
+#lifecycle-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 200;
+    background: #edf4ff;
+    opacity: 1;
+    visibility: visible;
+    -webkit-app-region: no-drag;
+    transition: opacity 420ms ease, visibility 420ms;
+}
+#lifecycle-overlay.is-dismissed {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+#lifecycle-video { width: 100%; height: 100%; object-fit: contain; display: block; }
+/* The loading announcement is local audio, never dialogue content. */
+.lifecycle-opening #subtitle-container,
+.lifecycle-closing #subtitle-container {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.lifecycle-opening #window-drag-handle,
+.lifecycle-closing #window-drag-handle { display: none; }
+
+
+/*
+    ============================================================
+    CG1 调参区
+
+    以后你想调整凯伊站位，
+    优先只改这里。
+
+    不需要往下面找 CSS。
+    ============================================================
+*/
+
+:root {
+
+    /*
+        角色的水平锚点。
+
+        28vw =
+        从窗口左边向右 28%。
+
+        增大：
+        凯伊向右移动。
+
+        减小：
+        凯伊向左移动。
+    */
+    --kei-anchor-x: 28vw;
+
+
+    /*
+        角色脚底距窗口底部的距离。
+    */
+    --kei-bottom: 4vh;
+
+
+    /*
+        WebM / Live2D 角色显示高度。
+
+        第一版先用 82vh。
+
+        觉得凯伊太大：
+        例如改为 76vh。
+
+        太小：
+        例如 86vh。
+    */
+    --kei-height: 82vh;
+
+
+    /*
+        阴影参数
+    */
+    --kei-shadow-width: 280px;
+    --kei-shadow-height: 46px;
+    --kei-shadow-bottom: 3.2vh;
+}
+
+
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    overflow: hidden;
+
+    background: transparent;
+
+}
+
+
+body {
+    user-select: none;
+}
+
+
+
+/* ============================================================
+   Scene Root
+
+   继续使用原来的 #window。
+
+   #window 就是整个 Electron Scene。
+   ============================================================ */
+
+#window {
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    /* Only the separate top strip can drag the native window. */
+    -webkit-app-region: no-drag;
+}
+
+
+
+/* ============================================================
+   00. Scene Background
+   ============================================================ */
+
+#scene-background-layer {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 0;
+
+    overflow: hidden;
+
+    pointer-events: none;
+
+
+    /*
+        以后 CG1 → CG2 时，
+        可以只 fade 背景，
+        不影响嘴型和字幕。
+    */
+    opacity: 1;
+
+    transition:
+        opacity 250ms ease;
+}
+
+
+/*
+    以后 SceneController 可以添加这个 class：
+
+    backgroundLayer.classList.add("fade-out");
+*/
+#scene-background-layer.fade-out {
+    opacity: 0;
+}
+
+
+#scene-background {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+
+    /*
+        非常重要：
+
+        保持原比例填满窗口。
+
+        不拉伸。
+        不压扁。
+    */
+    object-fit: cover;
+
+
+    /*
+        默认从场景中心裁切。
+
+        以后如果发现需要更偏左/右，
+        可以改：
+
+        object-position: 45% center;
+    */
+    object-position: center center;
+
+    user-select: none;
+
+    pointer-events: none;
+
+    -webkit-user-drag: none;
+}
+
+
+
+/* ============================================================
+   10. Environment FX
+   ============================================================ */
+
+#environment-fx-layer {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 10;
+
+    pointer-events: none;
+}
+
+
+
+/* ============================================================
+   20. Character Stage
+   ============================================================ */
+
+#character-stage {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 20;
+
+    overflow: visible;
+
+    pointer-events: none;
+}
+
+
+
+/* ============================================================
+   Character Shadow
+   ============================================================ */
+
+#character-shadow {
+    position: absolute;
+
+
+    /*
+        和角色使用相同的水平 anchor。
+    */
+    left: var(--kei-anchor-x);
+
+    bottom: var(--kei-shadow-bottom);
+
+
+    width: var(--kei-shadow-width);
+    height: var(--kei-shadow-height);
+
+
+    /*
+        因为 left 对准的是阴影中心，
+        所以向左平移自身宽度的一半。
+    */
+    transform:
+        translateX(-50%);
+
+
+    border-radius: 50%;
+
+
+    /*
+        第一版先用一个简单的深蓝灰阴影。
+    */
+    background:
+        rgba(
+            20,
+            28,
+            40,
+            0.20
+        );
+
+
+    /*
+        大量模糊，
+        让它不像一个黑色椭圆贴纸。
+    */
+    filter:
+        blur(18px);
+
+
+    opacity: 0.70;
+
+    pointer-events: none;
+}
+
+
+
+/* ============================================================
+   Character Renderer Container
+
+   WebM 和未来 Live2D 共用这个位置。
+   ============================================================ */
+
+#character-layer {
+    position: absolute;
+
+
+    /*
+        角色水平 anchor。
+    */
+    left: var(--kei-anchor-x);
+
+
+    /*
+        角色脚部距离地面的位置。
+    */
+    bottom: var(--kei-bottom);
+
+
+    /*
+        这个容器需要给武器 / 头发留足够空间。
+    */
+    width: 62vw;
+    height: var(--kei-height);
+
+
+    /*
+        anchorX 表示角色中心位置，
+        所以整体左移一半。
+    */
+    transform:
+        translateX(-50%);
+
+
+    overflow: visible;
+
+    pointer-events: none;
+}
+
+
+
+/* ============================================================
+   Current WebM Renderer
+   ============================================================ */
+
+.character-video {
+    position: absolute;
+
+
+    /*
+        两个视频全部以容器底部为脚点。
+    */
+    bottom: 0;
+
+
+    /*
+        水平居中。
+    */
+    left: 50%;
+
+
+    /*
+        高度等于 character-layer。
+    */
+    height: 100%;
+
+    width: auto;
+
+
+    /*
+        防止异常情况下超出太多。
+    */
+    max-width: 100%;
+
+
+    object-fit: contain;
+
+
+    transform:
+        translateX(-50%);
+
+
+    /*
+        默认隐藏。
+    */
+    opacity: 0;
+
+    visibility: hidden;
+
+
+    /*
+        保留你原来的 100ms
+        Idle / Talk 切换。
+
+        这样不会影响现有逻辑。
+    */
+    transition:
+        opacity 100ms linear;
+
+    pointer-events: none;
+}
+
+
+
+/*
+    webm_renderer.js 只需要继续
+    切换 active class。
+*/
+
+.character-video.active {
+    opacity: 1;
+
+    visibility: visible;
+}
+
+
+
+/* ============================================================
+   Future Live2D Canvas
+
+   当前阶段：
+   隐藏。
+
+   下一阶段接入 Cubism 后：
+   display: block;
+   ============================================================ */
+
+#live2d-canvas {
+    position: absolute;
+
+    inset: 0;
+
+
+    width: 100%;
+    height: 100%;
+
+
+    display: none;
+
+    pointer-events: none;
+}
+
+
+
+/* ============================================================
+   30. Character FX
+   ============================================================ */
+
+#character-fx-layer {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 30;
+
+    pointer-events: none;
+}
+
+
+
+/* ============================================================
+   40. Scene UI
+
+   当前 CG1 为空。
+
+   CG2 / CG3 以后使用。
+   ============================================================ */
+
+#scene-ui-layer {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 40;
+
+    pointer-events: none;
+
+
+    /*
+        注意：
+
+        未来真正加入可点击 UI 后，
+        再针对具体控件：
+
+        pointer-events: auto;
+        -webkit-app-region: no-drag;
+    */
+}
+
+
+
+/* ============================================================
+   Live2D Integration Test
+   ============================================================ */
+
+#live2d-canvas {
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    z-index: 22;
+
+    pointer-events: none;
+}
+
+
+/*
+ * Live2D 测试期间关闭 WebM。
+ *
+ * 只是隐藏，不删除。
+ */
+#idle-video,
+#talk-video {
+    display: none !important;
+}
+
+/* Work/result backgrounds keep the same independent Live2D character layer. */
+#scene-background-layer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, rgba(10, 26, 46, 0.1), rgba(7, 24, 43, 0.22));
+    opacity: 0;
+    transition: opacity 250ms ease;
+}
+
+#window[data-scene="cg2"] #scene-background-layer::after,
+#window[data-work-state="result"] #scene-background-layer::after {
+    opacity: 1;
+}
+
+/* Only the rendered seated illustration hides the separate standing character. */
+body[data-character-presentation="seated-still"] #character-stage {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Match the seated CG2's perceived character size with a closer work camera. */
+#scene-background {
+    transform: scale(1);
+    transform-origin: 42% 60%;
+    transition: transform 720ms cubic-bezier(.22,.61,.36,1);
+}
+body[data-character-presentation="seated-still"] #scene-background { transform: scale(1); }
+.scene-background-outgoing {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%; object-fit: cover;
+    opacity: 1;
+    transition: opacity 680ms ease-in-out;
+    pointer-events: none;
+}
+.scene-background-outgoing.fade-away { opacity: 0; }
+#character-stage {
+    transform: none;
+    transform-origin: 28% 95%;
+    transition: opacity 680ms ease-in-out;
+}
+@media (prefers-reduced-motion: reduce) {
+    #scene-background, #character-stage, .scene-background-outgoing { transition-duration: 100ms; }
+}
+
+/* Integrated work illustration uses the same room framing as CG1. */
+.scene-seated-character {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 680ms ease-in-out;
+    filter: none;
+}
+body[data-character-presentation="seated-still"] .scene-seated-character { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+    .scene-seated-character { transition-duration: 100ms; }
+}
+
+/* The monitors share the CG2 image's 1672:941 crop, so their light stays on the screens. */
+.scene-monitor-fx {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 177.68vh);
+    aspect-ratio: 1672 / 941;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 350ms ease;
+    pointer-events: none;
+    mix-blend-mode: screen;
+}
+#window[data-scene="cg2"][data-work-state="working"] .scene-monitor-fx { opacity: 1; }
+.scene-monitor-display {
+    position: absolute;
+    overflow: hidden;
+    border-radius: 2px;
+    background: rgba(20, 198, 248, .10);
+    box-shadow: inset 0 0 10px rgba(103, 238, 255, .35), 0 0 7px rgba(44, 221, 255, .15);
+}
+.scene-monitor-left { left: 51.9%; top: 50.2%; width: 5.8%; height: 5.9%; }
+.scene-monitor-main { left: 58.2%; top: 50.0%; width: 6.0%; height: 6.2%; }
+.scene-monitor-display::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(180deg, transparent 0 5px, rgba(175, 249, 255, .27) 6px 7px);
+    opacity: .45;
+}
+.scene-monitor-display::after {
+    content: "";
+    position: absolute;
+    left: 4%; right: 4%; top: 0;
+    height: 18%;
+    background: linear-gradient(180deg, transparent, rgba(160, 252, 255, .42), transparent);
+    animation: kei-monitor-scan 2.8s ease-in-out infinite;
+}
+.scene-monitor-main span { display: none; position: absolute; }
+#window[data-work-activity="searching"] .scene-monitor-search {
+    display: block;
+    width: 31%; aspect-ratio: 1; left: 36%; top: 24%;
+    border: 1px solid rgba(208, 255, 255, .8);
+    border-radius: 50%;
+    box-shadow: 0 0 9px rgba(97, 236, 255, .8), inset 0 0 8px rgba(97, 236, 255, .45);
+    animation: kei-monitor-search 2.4s ease-in-out infinite;
+}
+#window[data-work-activity="reading"] .scene-monitor-reading,
+#window[data-work-activity="organizing"] .scene-monitor-reading {
+    display: block;
+    left: 19%; top: 26%; width: 60%; height: 48%;
+    background: repeating-linear-gradient(180deg, rgba(221, 255, 255, .66) 0 2px, transparent 2px 9px);
+    animation: kei-monitor-read 2.2s ease-in-out infinite alternate;
+}
+#window[data-work-activity="controlling"] .scene-monitor-control {
+    display: block;
+    left: 34%; top: 30%; width: 26%; aspect-ratio: 1;
+    border: 1px solid rgba(221, 255, 255, .8);
+    box-shadow: 0 0 8px rgba(97, 236, 255, .8);
+    animation: kei-monitor-control 3s ease-in-out infinite alternate;
+}
+#window[data-work-activity="computing"] .scene-monitor-computing {
+    display: block;
+    left: 17%; top: 32%; width: 67%; height: 36%;
+    background: repeating-linear-gradient(90deg, rgba(221, 255, 255, .65) 0 3px, transparent 3px 10px);
+    animation: kei-monitor-compute 1.6s ease-in-out infinite alternate;
+}
+@keyframes kei-monitor-scan { 0%, 100% { transform: translateY(-100%); opacity: .2; } 50% { transform: translateY(580%); opacity: .8; } }
+@keyframes kei-monitor-search { 50% { transform: scale(1.35); opacity: .45; } }
+@keyframes kei-monitor-read { to { transform: translateY(6px); opacity: .5; } }
+@keyframes kei-monitor-control { to { transform: translate(15px, -7px); opacity: .55; } }
+@keyframes kei-monitor-compute { to { transform: scaleY(.55); opacity: .5; } }
+@media (prefers-reduced-motion: reduce) {
+    .scene-monitor-display::after, .scene-monitor-main span { animation: none !important; }
+}
+

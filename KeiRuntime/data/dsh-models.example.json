@@ -1,0 +1,18 @@
+{
+  "dsh_default": "flash",
+  "dsh_providers": {
+    "my-gateway": {
+      "api": "openai-completions",
+      "baseURL": "https://gateway.example.com/v1",
+      "apiKeyEnv": "KEI_GATEWAY_API_KEY"
+    }
+  },
+  "dsh_models": {
+    "reviewer": {
+      "label": "My review model",
+      "provider": "my-gateway",
+      "model": "REPLACE_WITH_EXACT_MODEL_ID",
+      "enabled": false
+    }
+  }
+}

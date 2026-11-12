@@ -1,0 +1,8 @@
+name: astrbot_plugin_deepseek_search
+display_name: DeepSeek 网页搜索与抓取
+short_desc: 使用 DeepSeek 自研搜索 API 搜索网页、抓取正文
+desc: 为 AstrBot 提供 DeepSeek 独立 Search/Fetch API 工具，返回网页摘要、来源与 Markdown 正文。只需 API Key，不依赖 DeepSeek 生成模型。
+version: 2.0.1
+author: SkyL3gend
+repo: https://github.com/SkyL3gend/astrbot_plugin_deepseek_search
+astrbot_version: ">=4.5.7"

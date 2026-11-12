@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Kei Desktop</title>
+
+    <link
+        rel="stylesheet"
+        href="./style.css"
+    >
+    <link rel="stylesheet" href="./theme.css">
+    <link rel="stylesheet" href="./shell.css">
+</head>
+
+
+<body class="lifecycle-opening">
+
+    <audio id="loading-voice" preload="auto" src="../assets/voice/navi-login-loading.wav"></audio>
+
+    <!--
+        #window 继续作为整个 Electron 窗口的根节点。
+
+        现阶段：
+        Scene Root = #window
+
+        不另外再套一层 #scene-root，
+        这样可以最大程度避免破坏当前程序。
+    -->
+    <main id="window">
+
+        <div id="lifecycle-overlay" aria-label="起動画面">
+            <video id="lifecycle-video" muted playsinline preload="auto"
+                src="../assets/lifecycle/startup.mp4"></video>
+        </div>
+
+
+        <!-- =====================================================
+             00. Scene Background
+             CG1 / CG2 / CG3 的背景层
+             ===================================================== -->
+
+        <div id="scene-background-layer">
+
+            <img
+                id="scene-background"
+                src="../assets/scenes/standby/cg1_standby_bg_v1.png"
+                alt=""
+                draggable="false"
+            >
+
+        </div>
+
+
+        <!-- =====================================================
+             10. Environment FX
+
+             当前为空。
+
+             未来：
+             - 阳光
+             - 空气粒子
+             - 屏幕蓝光
+             - 场景 Bloom
+             - 夜间环境效果
+             ===================================================== -->
+
+        <div id="environment-fx-layer">
+        </div>
+
+
+        <!-- =====================================================
+             20. Character Stage
+
+             这个层只负责：
+             - 角色在场景里的位置
+             - 接地阴影
+             - Character Renderer
+
+             CharacterController 本身不需要知道背景是什么。
+             ===================================================== -->
+
+        <div id="character-stage">
+
+
+            <!-- 人物接地阴影 -->
+
+            <div id="character-shadow">
+            </div>
+
+
+            <!-- =================================================
+                 Character Renderer
+
+                 当前：
+                 WebMCharacter
+
+                 未来：
+                 Live2DCharacter
+
+                 两种 renderer 共用同一个舞台位置。
+                 ================================================= -->
+
+            <div id="character-layer">
+
+
+                <!--
+                    Live2D 预留 Canvas
+
+                    当前先隐藏。
+                    等 Cubism renderer 接入后启用。
+                -->
+
+                <canvas id="live2d-canvas">
+                </canvas>
+
+
+                <!-- =============================================
+                     当前 WebM Idle
+
+                     ID 保持不变。
+                     不破坏 webm_renderer.js。
+                     ============================================= -->
+
+                <video
+                    id="idle-video"
+                    class="character-video active"
+                    muted
+                    autoplay
+                    loop
+                    playsinline
+                >
+
+                    <source
+                        src="../assets/character/CH0335_home_Idle_01.webm"
+                        type="video/webm"
+                    >
+
+                </video>
+
+
+                <!-- =============================================
+                     当前 WebM Talk
+
+                     ID 保持不变。
+                     ============================================= -->
+
+                <video
+                    id="talk-video"
+                    class="character-video"
+                    muted
+                    loop
+                    playsinline
+                >
+
+                    <source
+                        src="../assets/character/CH0335_home_Talk_01_M.webm"
+                        type="video/webm"
+                    >
+
+                </video>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             30. Character FX
+
+             当前为空。
+
+             未来：
+             - Rim Light
+             - 显示器反光
+             - Glow
+             - 特殊角色效果
+             ===================================================== -->
+
+        <div id="character-fx-layer">
+        </div>
+
+
+        <!-- =====================================================
+             40. Scene UI
+
+             CG1 当前为空。
+
+             CG2：
+             Search UI
+
+             CG3：
+             Result UI
+             ===================================================== -->
+
+        <div id="scene-ui-layer">
+        </div>
+
+        <!-- 45. Idle overview: shown while Kei is not searching or working -->
+        <section id="overview" class="ui-panel" aria-label="概要" hidden>
+            <div class="overview-head">
+                <span class="popover-kicker">OVERVIEW</span>
+                <span id="overview-date"></span>
+            </div>
+            <div id="overview-title">待機中</div>
+            <div id="overview-rows"></div>
+        </section>
+
+
+        <!-- 50. Runtime status (IDs are bound in app.js) -->
+        <div id="status" class="ui-panel">
+            <span id="connection-dot"></span>
+            <span id="connection-text">接続中…</span>
+        </div>
+
+        <!-- 60. Dialogue column, to Kei's right: user bubble, Kei's line, composer -->
+        <div id="subtitle-container">
+            <!-- Compact mode only: one line saying what Kei is working on (text set in CSS). -->
+            <div id="compact-work" class="ui-panel" aria-hidden="true"></div>
+            <div id="user-echo" class="ui-panel" aria-live="polite">
+                <span id="user-echo-text"></span>
+                <span class="user-echo-wait" aria-label="ケイが考えています"><i></i><i></i><i></i></span>
+            </div>
+
+            <div id="subtitle" class="ui-panel" aria-hidden="true">
+                <div class="dialogue-speaker">ケイ <span>KEI</span></div>
+                <div class="dialogue-rule"></div>
+                <div id="subtitle-japanese" lang="ja" hidden></div>
+                <!-- Legacy id kept for app.js: this is the spoken Japanese line. -->
+                <div id="subtitle-chinese" lang="ja"></div>
+                <span class="dialogue-indicator" aria-hidden="true"></span>
+            </div>
+
+            <form id="composer" class="ui-panel" autocomplete="off">
+                <div id="composer-files" aria-label="添付ファイル"></div>
+                <textarea id="composer-input" rows="1" maxlength="4000" spellcheck="false"
+                    aria-label="ケイにメッセージを送る" placeholder="接続中…"></textarea>
+                <button id="composer-send" type="submit" aria-label="送信" title="送信（Enter）" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M12 6l6 6-6 6" /></svg>
+                </button>
+                <div id="composer-status" role="status"></div>
+            </form>
+        </div>
+
+        <!-- 70. Backlog: the current conversation and every saved one -->
+        <div id="backlog-scrim" aria-hidden="true"></div>
+        <aside id="backlog" aria-label="会話の履歴" aria-hidden="true">
+            <header class="backlog-header">
+                <button id="backlog-back" class="sheet-tool" type="button" hidden>‹ すべての会話</button>
+                <div class="backlog-heading">
+                    <div class="backlog-kicker">BACKLOG</div>
+                    <div id="backlog-title">今の会話</div>
+                </div>
+                <button id="backlog-close" class="sheet-tool" type="button">閉じる</button>
+            </header>
+            <label class="backlog-search" hidden>
+                <input id="backlog-search" type="search" placeholder="話した内容を検索…" aria-label="履歴を検索">
+            </label>
+            <div id="backlog-body"></div>
+            <footer class="backlog-footer">
+                <span>履歴はこのパソコンにだけ保存されます</span>
+                <button id="backlog-remove" class="sheet-tool sheet-danger" type="button" hidden>この会話を削除</button>
+                <button id="backlog-clear" class="sheet-tool sheet-danger" type="button" hidden>すべての履歴を削除</button>
+            </footer>
+        </aside>
+
+
+        <!-- 80. Reading: questions about a selected passage, and reading plans -->
+        <div id="reading-scrim" aria-hidden="true"></div>
+        <aside id="reading" class="sheet" aria-label="読書" aria-hidden="true">
+            <header class="backlog-header">
+                <div class="backlog-heading">
+                    <div class="backlog-kicker">READING</div>
+                    <div class="sheet-title">読書</div>
+                </div>
+                <button id="reading-close" class="sheet-tool" type="button">閉じる</button>
+            </header>
+            <div class="sheet-body">
+                <section class="reading-section">
+                    <h3>いま読んでいるところ</h3>
+                    <p id="reading-source" class="popover-note">PDF で文章を選択して Ctrl + Alt + Q を押すか、コピーしてここに貼り付けてください。</p>
+                    <textarea id="reading-passage" rows="5" maxlength="12000" placeholder="質問したい文章" aria-label="質問したい文章"></textarea>
+                    <div id="reading-quick" class="reading-chips">
+                        <button type="button" class="pill" data-question="この部分をわかりやすく説明してください。">説明して</button>
+                        <button type="button" class="pill" data-question="この部分を短く要約してください。">要約して</button>
+                        <button type="button" class="pill" data-question="この部分を日本語に訳してください。">日本語に訳して</button>
+                        <button type="button" class="pill" data-question="この部分に出てくる専門用語を教えてください。">用語を教えて</button>
+                    </div>
+                    <form id="reading-ask" class="reading-ask" autocomplete="off">
+                        <input id="reading-question-input" type="text" maxlength="2000" placeholder="自分の言葉で質問する" aria-label="質問">
+                        <button class="pill primary" type="submit">ケイに聞く</button>
+                    </form>
+                    <p id="reading-ask-status" class="popover-note" role="status"></p>
+                </section>
+                <section class="reading-section">
+                    <h3>読書プラン</h3>
+                    <div id="reading-plans"></div>
+                    <p id="reading-plan-status" class="sheet-error" role="alert"></p>
+                    <form id="reading-new" class="reading-new" autocomplete="off">
+                        <h4>新しいプラン</h4>
+                        <input id="reading-new-title" type="text" maxlength="120" placeholder="本や資料の名前" aria-label="本や資料の名前" required>
+                        <label>総ページ数 <input id="reading-new-total" type="number" min="1" max="20000" required></label>
+                        <label>1 日に読むページ <input id="reading-new-daily" type="number" min="1" max="20000" required></label>
+                        <button class="pill primary" type="submit">プランを作る</button>
+                    </form>
+                </section>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- Popovers opened from the toolbar -->
+    <section id="pomodoro-panel" class="popover ui-panel" aria-label="集中タイマーとタスク" hidden>
+        <div class="popover-kicker" id="pomodoro-phase">集中</div>
+        <div id="pomodoro-time">25:00</div>
+        <div class="popover-note" id="focus-current"></div>
+        <div class="popover-row">
+            <button id="pomodoro-toggle" class="pill primary" type="button">開始</button>
+            <button id="pomodoro-skip" class="pill" type="button" title="次の区切りへ進む">スキップ</button>
+            <button id="pomodoro-reset" class="pill" type="button">リセット</button>
+        </div>
+        <div class="segmented" id="pomodoro-presets" role="group" aria-label="時間の設定">
+            <button type="button" data-preset="25">25 / 5 分</button>
+            <button type="button" data-preset="50">50 / 10 分</button>
+            <button type="button" data-preset="15">15 / 3 分</button>
+        </div>
+        <div class="popover-note" id="pomodoro-count">今日の集中：0 回</div>
+        <div class="quick-block">
+            <div class="quick-title">今日のタスク</div>
+            <ul id="task-list"></ul>
+            <form id="task-add" autocomplete="off">
+                <input id="task-input" type="text" maxlength="200" placeholder="やることを追加" aria-label="やることを追加">
+                <button class="pill primary" type="submit">追加</button>
+            </form>
+            <div class="popover-note" id="task-status" role="status"></div>
+            <button id="task-clear" class="sheet-tool" type="button" hidden>完了したタスクを片付ける</button>
+        </div>
+    </section>
+
+    <section id="quick-panel" class="popover ui-panel" aria-label="操作" hidden>
+        <div class="quick-item">
+            <div>
+                <div class="quick-title">画面観察</div>
+                <div class="popover-note" id="quick-observe-status">停止中</div>
+            </div>
+            <button id="quick-observe" class="switch" type="button" role="switch" aria-checked="false" aria-label="画面観察"><i></i></button>
+        </div>
+        <div class="quick-item">
+            <div>
+                <div class="quick-title">ケイから話しかける <small>試験的</small></div>
+                <div class="popover-note" id="quick-proactive-status">画面観察中、ケイが声をかけるか自分で判断します</div>
+            </div>
+            <button id="quick-proactive" class="switch" type="button" role="switch" aria-checked="false" aria-label="ケイから話しかける"><i></i></button>
+        </div>
+        <div class="quick-block">
+            <div class="quick-title">実行エージェント</div>
+            <div class="segmented" id="quick-executors" role="group" aria-label="実行エージェント">
+                <button type="button" data-backend="dsh">DSH</button>
+                <button type="button" data-backend="codex">Codex</button>
+                <button type="button" data-backend="astrbot">AstrBot</button>
+            </div>
+            <div class="popover-note" id="quick-executor-status">確認中…</div>
+        </div>
+        <div class="quick-block">
+            <div class="quick-title">配色</div>
+            <div class="segmented" id="quick-themes" role="group" aria-label="配色">
+                <button type="button" data-theme-id="hakuji">白磁</button>
+                <button type="button" data-theme-id="yoru">夜</button>
+                <button type="button" data-theme-id="sora">空</button>
+            </div>
+        </div>
+        <button id="admin-button" class="pill wide" type="button">管理ウィンドウを開く</button>
+    </section>
+
+    <div id="shell-toast" class="ui-panel" role="status" aria-live="polite"></div>
+
+    <!-- Native window drag regions must not overlap the interactive controls. -->
+    <div id="window-drag-handle" aria-hidden="true"></div>
+    <!-- Compact mode: Kei's own area. The surface (drag, double-click) comes
+         first so that the controls are on top of it. -->
+    <div id="compact-zone">
+        <div id="compact-surface" title="ドラッグで移動 · ダブルクリックで元の画面に戻る"></div>
+        <div id="compact-controls" class="ui-panel">
+            <i id="compact-observe" title="画面観察中"></i>
+            <button id="compact-talk" type="button" aria-pressed="false" aria-label="ケイに話しかける" title="ケイに話しかける">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5h14v10H10l-5 4z" /></svg>
+            </button>
+            <button id="compact-return" type="button" aria-label="元の画面に戻る" title="元の画面に戻る（ダブルクリック、Esc、Ctrl + Alt + K でも戻れます）">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H4v5M15 20h5v-5M4 4l6 6M20 20l-6-6" /></svg>
+            </button>
+        </div>
+    </div>
+
+    <nav id="shell-toolbar" class="ui-panel" aria-label="ウィンドウ操作">
+        <button id="pomodoro-button" class="shell-button" type="button" aria-expanded="false" aria-controls="pomodoro-panel" title="集中タイマーとタスク">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="7" /><path d="M12 9v4l2.5 2M9 3h6" /></svg>
+            <span id="pomodoro-chip">25:00</span>
+        </button>
+        <button id="backlog-button" class="shell-button" type="button" aria-expanded="false" aria-controls="backlog" title="会話の履歴">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5h14v10H10l-5 4z" /><path d="M9 9h6M9 12h4" /></svg>
+            <span>履歴</span>
+        </button>
+        <button id="reading-button" class="shell-button" type="button" aria-expanded="false" aria-controls="reading" title="読書：PDF の質問と読書プラン">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6c-2-1.3-4.5-1.6-7-1v13c2.5-.6 5-.3 7 1 2-1.3 4.5-1.6 7-1V5c-2.5-.6-5-.3-7 1zM12 6v13" /></svg>
+            <span>読書</span>
+        </button>
+        <button id="quick-button" class="shell-button" type="button" aria-expanded="false" aria-controls="quick-panel" title="画面観察・実行エージェント・配色・管理">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14" /><circle cx="9" cy="7" r="2" fill="currentColor" /><circle cx="15" cy="12" r="2" fill="currentColor" /><circle cx="8" cy="17" r="2" fill="currentColor" /></svg>
+            <span>操作</span>
+            <i id="observe-dot" title="画面観察中" hidden></i>
+        </button>
+        <button id="compact-button" class="shell-button icon-only" type="button" aria-label="ケイだけにする（画面観察を始めます）" title="ケイだけにする（画面観察を始めます。Ctrl + Alt + K）">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2" /><rect x="12" y="12" width="6" height="5" rx="1" fill="currentColor" /></svg>
+        </button>
+        <button id="power-button" type="button" aria-label="ケイとの通話を終了する" title="ケイとの通話を終了する">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M3.2 10.3C8.4 6.6 15.6 6.6 20.8 10.3c.8.6 1 1.5.6 2.4l-.8 1.8c-.3.7-1.1 1-1.8.7l-3-1.2c-.6-.2-1-.8-.9-1.4l.1-1.2a14.6 14.6 0 0 0-6 0l.1 1.2c.1.6-.3 1.2-.9 1.4l-3 1.2c-.7.3-1.5 0-1.8-.7l-.8-1.8c-.4-.9-.2-1.8.6-2.4Z" />
+            </svg>
+        </button>
+    </nav>
+
+
+    <!-- =========================================================
+         原来的脚本顺序保持不变
+         ========================================================= -->
+
+    <!-- Cubism Core -->
+    <script
+        src="../vendor/cubism/Core/live2dcubismcore.js"
+    ></script>
+
+
+    <!-- Official Cubism Framework + Kei adapter -->
+    <script
+        src="./dist/live2d/kei-live2d.js"
+    ></script>
+
+
+    <!-- Existing Kei Desktop -->
+    <script
+        src="./character/webm_renderer.js"
+    ></script>
+
+    <script
+        src="./character/look_controller.js"
+    ></script>
+
+    <script
+        src="./character/idle_motion_controller.js"
+    ></script>
+
+    <script
+        src="./character/expression_resolver.js"
+    ></script>
+
+    <script
+        src="./character/expression_controller.js"
+    ></script>
+
+    <script
+        src="./character/character_controller.js"
+    ></script>
+
+    <script src="./scene/scene_definitions.js"></script>
+
+    <script
+        src="./scene/scene_controller.js"
+    ></script>
+
+    <script src="./lifecycle_controller.js"></script>
+    <script src="./character/reactions.js"></script>
+    <script src="./conversation/conversation_model.js"></script>
+    <script src="./conversation/conversation_ui.js"></script>
+    <script src="./shell/pomodoro_model.js"></script>
+    <script src="./shell/proactive_model.js"></script>
+    <script src="./shell/tasks_model.js"></script>
+    <script src="./shell/shell_ui.js"></script>
+    <script src="./shell/focus_ui.js"></script>
+    <script src="./shell/compact_ui.js"></script>
+    <script src="./shell/overview_model.js"></script>
+    <script src="./shell/overview_ui.js"></script>
+    <script src="./reading/reading_ui.js"></script>
+    <script src="./app.js"></script>
+</body>
+
+</html>

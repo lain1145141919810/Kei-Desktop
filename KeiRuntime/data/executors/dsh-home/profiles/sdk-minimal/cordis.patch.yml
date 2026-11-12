@@ -1,0 +1,37 @@
+- id: sandbox-policy
+  config:
+    mode: workspace-write
+- id: llm-deepseek
+  config:
+    thinking: disabled
+    reasoningEffort: off
+    streamIdleTimeoutMs: 30000
+- id: terminal-pwsh
+  disabled: true
+- id: persistent-pwsh
+  disabled: true
+- insert:
+    - id: kei-shell-env
+      name: '@deepseek-ai/dsh-shell-env'
+    - id: kei-approval
+      name: '@deepseek-ai/dsh-user-approval'
+      config:
+        policy: never
+    - id: kei-pwsh-sandbox
+      name: '@deepseek-ai/dsh-pwsh-sandbox'
+      config:
+        timeoutMs: 30000
+        maxTimeoutMs: 30000
+        maxOutputBytes: 16000
+        maxSpillBytes: 1000000
+    - id: kei-tool-pwsh
+      name: '@deepseek-ai/dsh-tool-pwsh'
+      config:
+        enableRunInBackground: false
+        promoteOnTimeout: false
+    - id: kei-fs
+      name: '@deepseek-ai/dsh-fs-sandbox'
+    - id: kei-fs-observation
+      name: '@deepseek-ai/dsh-fs-observation-policy'
+    - id: kei-tool-fs
+      name: '@deepseek-ai/dsh-tool-fs'

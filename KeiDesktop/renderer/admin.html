@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src ws://127.0.0.1:17881; img-src 'self' data:; style-src 'self' 'unsafe-inline'">
+<title>Kei Desktop 管理</title>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="admin.css">
+</head><body>
+<nav class="side">
+  <div class="brand">KEI<span>管理</span></div>
+  <a href="#quick">よく使う</a>
+  <a href="#health">稼働状況</a>
+  <a href="#voice">音声入力</a>
+  <a href="#reading">PDF 読書</a>
+  <a href="#bilibili">Bilibili</a>
+  <a href="#storage">コンテキスト管理</a>
+  <a href="#events-section">イベント</a>
+  <div class="side-foot">
+    <button id="refresh" class="ghost">今すぐ更新</button>
+    <button id="logs" class="ghost">ログを開く</button>
+    <div id="updated"></div>
+  </div>
+</nav>
+
+<main>
+  <section id="quick">
+    <h1>よく使う</h1>
+    <div class="grid two">
+      <article class="card">
+        <h2>画面観察</h2>
+        <div class="row"><button id="observe">画面観察を開始</button></div>
+        <p id="observe-status" class="state"></p>
+        <p class="note">Ctrl + Alt + S でも切り替えられます（マウスのある画面を観察）。</p>
+      </article>
+      <article class="card">
+        <h2>実行エージェント</h2>
+        <div class="row">
+          <select id="executor-backend" aria-label="実行エージェント"><option value="dsh">DSH（独立プロセス）</option><option value="codex">Codex（独立プロセス）</option><option value="astrbot">AstrBot（従来の経路）</option></select>
+          <button id="executor-select">適用</button>
+        </div>
+        <fieldset><legend>DSH サブエージェント</legend>
+          <label>委任方針 <select id="child-mode"><option value="auto">ケイに任せる</option><option value="ask">委任する前に相談</option><option value="manual">担当モデルを指定</option><option value="off">使用しない</option></select></label>
+          <div id="child-roles" class="row" hidden>
+            <label>調査・実行 <select id="child-work"><option value="flash">Flash</option><option value="pro">Pro</option></select></label>
+            <label>独立した検証 <select id="child-review"><option value="pro">Pro</option><option value="flash">Flash</option></select></label>
+          </div>
+          <p class="note">モデルの追加：KeiRuntime/data/dsh-models.json を編集し、一覧を再読み込みしてください。登録後、実際のタスクで接続を確認できます。</p>
+          <button id="models-reload" type="button">モデル一覧を再読み込み</button>
+          <button id="child-save" type="button">委任設定を保存</button> <span id="child-saved" role="status"></span>
+        </fieldset>
+        <div id="executor-status" class="state" role="status">接続待ち</div>
+        <div id="executor-error" class="error" role="alert"></div>
+        <div class="row">
+          <button id="executor-cancel" class="ghost">実行中のタスクを中止</button>
+          <button id="executor-release" class="ghost">プロセスを解放</button>
+        </div>
+        <p class="note">操作タスクだけに影響します。通常の会話と音声は変わりません。プロセスは必要なときに起動し、10 分使わなければ解放されます。書き込み先：D:\KeiRuntime\data\executor-workspace。管理者権限の操作はできません。</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="health">
+    <h1>稼働状況 <small>3 秒ごとに更新</small></h1>
+    <div class="grid four">
+      <article class="card"><h2>Desktop とモデル</h2><div id="runtime">確認中…</div></article>
+      <article class="card"><h2>音声認識</h2><div id="asr">確認中…</div></article>
+      <article class="card"><h2>マイク</h2><div id="mic">確認中…</div></article>
+      <article class="card"><h2>音声合成と再生</h2><div id="tts">確認中…</div></article>
+    </div>
+  </section>
+
+  <section id="voice">
+    <h1>音声入力</h1>
+    <article class="card">
+      <div class="row">
+        <select id="voice-mode" aria-label="発話の終了判定"><option value="auto">自動で終了を判定</option><option value="manual">キーで開始／キーで終了</option></select>
+        <select id="voice-key" aria-label="ショートカットキー"><option>F8</option><option>F9</option><option>F10</option></select>
+        <button id="voice-toggle">録音を開始</button>
+      </div>
+      <div id="voice-status" class="state" role="status"></div>
+      <p class="note">手動モード：キーを押して開始、もう一度押して終了・送信。最長 30 秒で自動送信、無音または 0.2 秒未満は破棄します。モードを切り替えると未送信の録音は破棄されます。</p>
+      <h3>直近の認識結果</h3>
+      <div id="transcript" class="well">音声入力を待っています。このウィンドウを開いてからの結果だけを表示します。</div>
+      <p class="note">このウィンドウは認識結果を保存しません。メインウィンドウの「履歴」は会話（音声認識の文字を含む）をこのパソコンに保存し、そこで削除できます。</p>
+    </article>
+  </section>
+
+  <section id="reading">
+    <h1>PDF 読書</h1>
+    <article class="card">
+      <p class="note">Ctrl + Alt + Q で閲覧中の選択範囲を読み取り、ここに表示します。読み取れない場合はコピーして貼り付けてください。内容を確認してから送信します。返答は日本語の字幕と音声です。</p>
+      <textarea id="reading-text" maxlength="12000" rows="6" placeholder="PDF で選択した原文"></textarea>
+      <textarea id="reading-question" maxlength="2000" rows="2" placeholder="質問（例：この段落の意味を説明して）"></textarea>
+      <div class="row"><button id="reading-send">ケイに質問する</button><span id="reading-status" class="state"></span></div>
+    </article>
+  </section>
+
+  <section id="bilibili">
+    <h1>Bilibili での活動</h1>
+    <article class="card">
+      <div class="row">
+        <button id="bili-login" class="ghost">QR コードで本人アカウントにログイン</button>
+        <button id="bili-start">毎日の活動を有効にする</button>
+        <button id="bili-stop" class="ghost">活動を一時停止</button>
+        <button id="bili-preview" class="ghost">プレビューだけ生成</button>
+      </div>
+      <p><img id="bili-qr" alt="Bilibili アプリで読み取り、スマートフォンで承認してください" hidden></p>
+      <pre id="bili-status" class="well">接続待ち</pre>
+      <div id="bili-error" class="error" role="alert"></div>
+      <p class="note">日本時間の毎日 09:00–10:00 に活動します。1 回あたり最大で動画 3 本のサンプル、いいね 3 回、コメント 1 件、フォロー 1 人、感想の投稿 1 件。適切な内容がなければ何もしません。6 フレームと字幕による理解であり、動画全体の視聴や音声の聴取ではありません。DM・コイン・購入・削除・アカウント設定は行いません。</p>
+    </article>
+  </section>
+
+  <section id="storage"><h1>コンテキスト管理</h1>
+    <p>保存内容を選んでディスクの空きを増やせます。会話を削除すると、この端末の履歴からも消えます。AstrBot に登録済みの記憶は保持されます。</p>
+    <button id="storage-refresh">一覧を更新</button> <button id="storage-release">待機中の実行器を終了してメモリを解放</button>
+    <p id="storage-status" role="status"></p><div id="storage-items"></div>
+  </section>
+  <section id="events-section">
+    <h1>処理イベント <small id="connection"></small></h1>
+    <div id="events" class="well log" role="log"></div>
+    <p class="note">このウィンドウを閉じても Desktop は終了しません。</p>
+  </section>
+</main>
+<script src="voice-ui.js"></script><script src="admin.js"></script><script src="companion-ui.js"></script><script src="executors-ui.js"></script><script src="bilibili-ui.js"></script><script src="storage-ui.js"></script></body></html>

@@ -1,0 +1,63 @@
+/* Shared design tokens for the main window and the admin window.
+   The theme name lives in localStorage("kei-theme") and is applied as
+   <html data-theme="…">. Add a theme by adding one block here and one
+   entry to THEMES in conversation/conversation_ui.js. */
+
+:root,
+:root[data-theme="hakuji"] {
+    /* 白磁: white porcelain with a vermilion seal */
+    --ui-panel: rgba(255, 255, 255, .88);
+    --ui-panel-solid: #ffffff;
+    --ui-sunken: rgba(24, 30, 44, .055);
+    --ui-text: #1b2130;
+    --ui-sub: #687086;
+    --ui-line: rgba(24, 30, 44, .13);
+    --ui-accent: #d2452a;
+    --ui-accent-soft: rgba(210, 69, 42, .11);
+    --ui-on-accent: #ffffff;
+    --ui-ok: #1f8a5b;
+    --ui-bad: #c23a3a;
+    --ui-shadow: 0 10px 34px rgba(30, 44, 70, .18);
+    --ui-scrim: rgba(20, 26, 40, .38);
+    --ui-page: #f3f1ec;
+    --font-ui: "BIZ UDPGothic", "Yu Gothic UI", "Hiragino Sans", "Meiryo", "Noto Sans JP", sans-serif;
+    --font-line: "BIZ UDPMincho", "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", serif;
+}
+
+:root[data-theme="yoru"] {
+    /* 夜: near-black with amber, closest to the Amadeus look */
+    --ui-panel: rgba(17, 17, 21, .86);
+    --ui-panel-solid: #15151a;
+    --ui-sunken: rgba(255, 255, 255, .07);
+    --ui-text: #f3efe8;
+    --ui-sub: #a7a299;
+    --ui-line: rgba(255, 255, 255, .15);
+    --ui-accent: #ffab3d;
+    --ui-accent-soft: rgba(255, 171, 61, .14);
+    --ui-on-accent: #1b1305;
+    --ui-ok: #6fd6a0;
+    --ui-bad: #ff8d86;
+    --ui-shadow: 0 12px 38px rgba(0, 0, 0, .5);
+    --ui-scrim: rgba(0, 0, 0, .55);
+    --ui-page: #0d0d10;
+    --font-line: "BIZ UDPGothic", "Yu Gothic UI", "Hiragino Sans", "Meiryo", "Noto Sans JP", sans-serif;
+}
+
+:root[data-theme="sora"] {
+    /* 空: pale sky, blends into the office scene */
+    --ui-panel: rgba(240, 247, 255, .86);
+    --ui-panel-solid: #f1f7ff;
+    --ui-sunken: rgba(23, 60, 110, .07);
+    --ui-text: #16304b;
+    --ui-sub: #5a7692;
+    --ui-line: rgba(23, 60, 110, .16);
+    --ui-accent: #1c74dc;
+    --ui-accent-soft: rgba(28, 116, 220, .12);
+    --ui-on-accent: #ffffff;
+    --ui-ok: #1b8a6a;
+    --ui-bad: #c4424f;
+    --ui-shadow: 0 10px 34px rgba(24, 70, 130, .2);
+    --ui-scrim: rgba(18, 44, 78, .36);
+    --ui-page: #e6f0fb;
+    --font-line: "BIZ UDPGothic", "Yu Gothic UI", "Hiragino Sans", "Meiryo", "Noto Sans JP", sans-serif;
+}

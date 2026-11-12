@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>现实触及</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <section id="managed-page" class="managed-page" hidden>
+    <div class="managed-panel">
+      <span class="managed-label">联动接管中</span>
+      <h1>已由陪伴插件接管</h1>
+      <p>当前能力已接入“我会永远陪着你”，为避免两处配置相互覆盖，本拓展页已锁定。请在插件管理中打开“我会永远陪着你”的“陪伴面板”继续操作。</p>
+      <button id="open-companion" class="button primary" type="button">前往插件管理</button>
+      <small>需要脱离陪伴体系独立使用时，请先停用或卸载陪伴插件，再返回此页面。</small>
+    </div>
+  </section>
+  <div id="app-shell" class="app-shell" hidden>
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">R</div>
+        <div><strong>现实触及</strong><span>Reality Companion</span></div>
+      </div>
+      <nav class="nav" aria-label="设置导航">
+        <button class="nav-item active" data-view="overview" type="button"><span aria-hidden="true">⌂</span><b>运行概览</b></button>
+        <button class="nav-item" data-view="devices" type="button"><span aria-hidden="true">◫</span><b>设备与摄像头</b></button>
+        <button class="nav-item" data-view="home" type="button"><span aria-hidden="true">⌂</span><b>家居控制</b></button>
+        <button class="nav-item" data-view="users" type="button"><span aria-hidden="true">◎</span><b>用户与提醒</b></button>
+        <button class="nav-item" data-view="mobile" type="button"><span aria-hidden="true">▯</span><b>Android 网关</b></button>
+      </nav>
+      <div class="sidebar-foot">
+        <span class="connection-dot" id="connection-dot"></span>
+        <div><b id="connection-label">正在连接</b><small id="version-label">AstrBot 插件页</small></div>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="toolbar">
+        <div>
+          <p id="view-kicker">运行概览</p>
+          <h1 id="view-title">设备状态与近期活动</h1>
+        </div>
+        <div class="toolbar-actions">
+          <button id="theme-toggle" class="toolbar-button" type="button" aria-expanded="false" aria-controls="theme-panel"><span aria-hidden="true">◐</span><b>外观</b></button>
+          <button id="refresh" class="icon-button" type="button" title="刷新状态" aria-label="刷新状态">↻</button>
+        </div>
+      </header>
+
+      <aside id="theme-panel" class="theme-panel" hidden>
+        <div class="theme-panel-head"><div><p>界面外观</p><h2>主题与玻璃质感</h2></div><button id="theme-close" class="icon-button compact-icon" type="button" title="关闭外观设置" aria-label="关闭外观设置">×</button></div>
+        <div class="theme-panel-body">
+          <fieldset class="theme-group"><legend>明暗模式</legend><div class="segmented" id="theme-mode"><button type="button" data-theme-mode="light">浅色</button><button type="button" data-theme-mode="dark">深色</button><button type="button" data-theme-mode="system">跟随系统</button></div></fieldset>
+          <fieldset class="theme-group"><legend>强调色</legend><div class="swatches" id="accent-swatches"><button type="button" data-accent="teal" title="青绿" aria-label="青绿"></button><button type="button" data-accent="blue" title="海蓝" aria-label="海蓝"></button><button type="button" data-accent="rose" title="玫红" aria-label="玫红"></button><button type="button" data-accent="amber" title="琥珀" aria-label="琥珀"></button></div></fieldset>
+          <label class="theme-slider"><span><b>玻璃透明度</b><output id="glass-opacity-output">86%</output></span><input id="glass-opacity" type="range" min="58" max="98" step="1" value="86" /></label>
+          <label class="theme-slider"><span><b>背景模糊</b><output id="glass-blur-output">18px</output></span><input id="glass-blur" type="range" min="0" max="30" step="1" value="18" /></label>
+          <label class="switch-row theme-motion"><span><b>界面动效</b><small>关闭后保留状态变化，不播放过渡动画。</small></span><input id="motion-enabled" type="checkbox" checked /><i aria-hidden="true"></i></label>
+          <button id="theme-reset" class="button secondary" type="button">恢复默认外观</button>
+        </div>
+      </aside>
+
+      <main id="main-content">
+        <section class="view active" data-panel="overview">
+          <div class="metric-grid" aria-label="运行指标">
+            <article class="metric"><span>总开关</span><strong id="metric-global">读取中</strong><small id="metric-global-note">等待服务状态</small></article>
+            <article class="metric"><span>音频授权</span><strong id="metric-audio">0</strong><small>已完成独立确认</small></article>
+            <article class="metric"><span>摄像头授权</span><strong id="metric-camera">0</strong><small>可执行单帧任务</small></article>
+            <article class="metric"><span>待执行提醒</span><strong id="metric-reminders">0</strong><small>计划与官方任务</small></article>
+          </div>
+
+          <section class="panel-section">
+            <div class="section-head"><div><p>基础设置</p><h2>现实触及总控</h2></div><span class="status-badge" id="integration-badge">读取中</span></div>
+            <form id="global-form" class="settings-form">
+              <label class="switch-row full">
+                <span><b>启用现实触及</b><small>控制本机音频、摄像头任务和现实提醒；用户授权仍独立生效。</small></span>
+                <input id="global-enabled" type="checkbox" /><i aria-hidden="true"></i>
+              </label>
+              <div class="field-grid three">
+                <label class="field"><span>视觉模型 Provider ID</span><input id="vision-provider" type="text" placeholder="留空则只返回本地画面信息" /><small>应选择支持图片输入的模型。</small></label>
+                <label class="field"><span>提醒时区</span><input id="timezone" type="text" value="Asia/Shanghai" /><small>使用 IANA 时区名称。</small></label>
+                <label class="field"><span>默认播放音量 <output id="default-volume-output">35%</output></span><input id="default-volume" type="range" min="0" max="100" step="1" value="35" /><small>用于新提醒和未单独指定音量的播放。</small></label>
+              </div>
+              <label class="field full"><span>独立授权用户 ID</span><textarea id="authorized-users" rows="3" placeholder="每行一个用户 ID"></textarea><small>未联动主陪伴插件时使用；支持换行或逗号分隔。</small></label>
+              <div class="form-actions"><button class="button primary" type="submit">保存基础设置</button></div>
+            </form>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-head"><div><p>运行摘要</p><h2>设备链路</h2></div></div>
+            <div class="runtime-list" id="runtime-list"></div>
+          </section>
+        </section>
+
+        <section class="view" data-panel="devices">
+          <section class="panel-section">
+            <div class="section-head"><div><p>本机音频</p><h2>输出设备</h2></div><span class="status-badge" id="audio-badge">读取中</span></div>
+            <form id="audio-form" class="settings-form">
+              <div class="field-grid two">
+                <label class="field"><span>播放目标</span><select id="audio-device"></select><small id="audio-detail">正在枚举输出设备</small></label>
+                <label class="field"><span>测试音量 <output id="audio-volume-output">35%</output></span><input id="audio-volume" type="range" min="0" max="100" value="35" /><small>只影响本次保存与测试。</small></label>
+              </div>
+              <div class="form-actions"><button class="button primary" type="submit">保存输出设备</button><button id="test-audio" class="button secondary" type="button">播放测试音</button></div>
+            </form>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-head"><div><p>单帧视觉</p><h2>摄像头配置</h2></div><div class="head-actions"><span class="status-badge" id="camera-badge">读取中</span><button id="scan-camera" class="button compact secondary" type="button">扫描设备</button></div></div>
+            <form id="camera-form" class="settings-form">
+              <label class="switch-row full"><span><b>启用摄像头单帧</b><small>仅在明确任务下读取一帧，随后立即释放设备。</small></span><input id="camera-enabled" type="checkbox" /><i aria-hidden="true"></i></label>
+              <div class="field-grid three">
+                <label class="field"><span>摄像头入口</span><select id="camera-index"><option value="0">索引 0</option></select><small id="camera-detail">点击扫描以刷新设备清单。</small></label>
+                <label class="field"><span>读取冷却（秒）</span><input id="camera-min-interval" type="number" min="10" max="3600" step="10" /></label>
+                <label class="field"><span>设备超时（秒）</span><input id="camera-capture-timeout" type="number" min="2" max="20" step="1" /></label>
+                <label class="field"><span>分析超时（秒）</span><input id="camera-analysis-timeout" type="number" min="5" max="90" step="5" /></label>
+                <label class="field"><span>主动视觉最低档位</span><input id="camera-min-tier" type="number" min="1" max="5" step="1" /></label>
+                <label class="field"><span>主动单帧每日上限</span><input id="camera-max-daily" type="number" min="0" max="10" step="1" /></label>
+                <label class="field"><span>主动视觉冷却（分钟）</span><input id="camera-cooldown" type="number" min="10" max="1440" step="10" /></label>
+              </div>
+              <label class="switch-row full"><span><b>允许主动视觉好奇</b><small>仍受关系档位、用户策略、每日额度与冷却约束。</small></span><input id="camera-proactive" type="checkbox" /><i aria-hidden="true"></i></label>
+              <div class="form-actions"><button class="button primary" type="submit">保存摄像头配置</button></div>
+            </form>
+          </section>
+        </section>
+
+        <section class="view" data-panel="users">
+          <div class="user-layout">
+            <aside class="user-rail"><div class="rail-head"><p>私聊用户</p><strong id="user-count">0 位</strong></div><div id="user-list" class="user-list"></div></aside>
+            <div id="user-detail" class="user-detail"><div class="empty-state"><b>暂无可配置用户</b><span>用户完成私聊识别后会出现在这里。</span></div></div>
+          </div>
+        </section>
+
+        <section class="view" data-panel="home">
+          <section class="panel-section">
+            <div class="section-head"><div><p>家居模块</p><h2>家庭服务配置</h2></div><span class="status-badge" id="home-badge">读取中</span></div>
+            <form id="home-form" class="settings-form">
+              <label class="switch-row full"><span><b>启用家庭服务</b><small>仅处理明确的打开/关闭请求；令牌只保存在现实触及插件配置中。</small></span><input id="home-enabled" type="checkbox" /><i aria-hidden="true"></i></label>
+              <div class="field-grid three">
+                <label class="field"><span>服务地址</span><input id="home-base-url" type="url" placeholder="http://127.0.0.1:8123" /></label>
+                <label class="field"><span>默认区域</span><input id="home-default-area" type="text" placeholder="客厅" /></label>
+                <label class="field"><span>请求超时（秒）</span><input id="home-timeout" type="number" min="1" max="30" step="1" value="5" /></label>
+              </div>
+              <label class="field full"><span>访问令牌</span><input id="home-access-token" type="password" autocomplete="new-password" placeholder="留空保持已配置令牌" /><small id="home-token-note">令牌不会回显，也不会下发到手机。</small></label>
+              <div class="form-actions"><button class="button primary" type="submit">保存家庭服务</button></div>
+            </form>
+          </section>
+
+          <section class="panel-section mihome-section">
+            <div class="section-head"><div><p>米家模块</p><h2>扫码登录与设备控制</h2></div><span class="status-badge" id="mihome-badge">检测中</span></div>
+            <div class="mihome-body">
+              <p class="mihome-intro">米家运行时已内置在现实触及插件中，账号授权、凭证保管、设备同步和控制都在这里完成。登录成功后会自动同步设备。</p>
+              <div class="form-actions"><button id="mihome-login" class="button primary" type="button">扫码登录米家</button><button id="mihome-sync" class="button secondary" type="button" disabled>同步设备</button><button id="mihome-logout" class="button danger" type="button" disabled>退出登录</button></div>
+              <div id="mihome-login-status" class="mihome-login-status" hidden></div>
+              <div id="mihome-feedback" class="mihome-feedback" hidden role="status" aria-live="polite"></div>
+              <div id="mihome-devices" class="mihome-devices"><div class="empty-state compact-empty"><b>正在读取米家状态</b><span>无需离开现实触及页面。</span></div></div>
+              <div id="mihome-mappings" class="mihome-mappings"></div>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" data-panel="mobile">
+          <section class="panel-section">
+            <div class="section-head"><div><p>陪伴终端</p><h2>Android 网关</h2></div><span class="status-badge" id="mobile-badge">读取中</span></div>
+            <form id="mobile-form" class="settings-form">
+              <label class="switch-row full"><span><b>启用移动端网关</b><small>为 Android 终端提供配对、房间、短时位置和屏幕共享状态入口。</small></span><input id="mobile-enabled" type="checkbox" /><i aria-hidden="true"></i></label>
+              <div class="field-grid two">
+                <label class="field"><span>监听地址</span><input id="mobile-host" type="text" placeholder="0.0.0.0" /><small>建议填写可信组网中的本机地址。</small></label>
+                <label class="field"><span>监听端口</span><input id="mobile-port" type="number" min="1" max="65535" /></label>
+                <label class="field"><span>绑定用户 ID</span><input id="mobile-user" type="text" placeholder="多个授权用户时必须填写" /></label>
+                <label class="field"><span>配对令牌</span><input id="mobile-token" type="password" autocomplete="new-password" placeholder="留空保持原令牌" /><small id="mobile-token-note">建议至少 24 位随机字符。</small></label>
+                <label class="field"><span>会话有效期（小时）</span><input id="mobile-session-ttl" type="number" min="1" max="720" /></label>
+                <label class="field"><span>位置上下文有效期（秒）</span><input id="mobile-location-ttl" type="number" min="60" max="86400" step="60" /></label>
+                <label class="field"><span>身体数据有效期（秒）</span><input id="mobile-telemetry-ttl" type="number" min="60" max="604800" step="60" /></label>
+                <label class="field"><span>活动摘要有效期（秒）</span><input id="mobile-activity-ttl" type="number" min="60" max="86400" step="60" /></label>
+              </div>
+              <section class="nested-section">
+                <div class="nested-section-head"><div><p>位置增强</p><h3>高德区域识别</h3></div><span class="status-badge" id="mobile-amap-badge">未配置</span></div>
+                <label class="switch-row full"><span><b>启用高德逆地理编码</b><small>把手机坐标转换为城市/城区背景，用于通勤、天气和生活场景；不会把精确地址写入陪伴提示。</small></span><input id="mobile-amap-enabled" type="checkbox" /><i aria-hidden="true"></i></label>
+                <div class="field-grid three">
+                  <label class="field"><span>高德 Web 服务 Key</span><input id="mobile-amap-key" type="password" autocomplete="new-password" placeholder="留空保持已配置 Key" /><small id="mobile-amap-key-note">Key 仅保存在服务端，不会下发到手机。</small></label>
+                  <label class="field"><span>区域缓存（秒）</span><input id="mobile-amap-cache-ttl" type="number" min="60" max="604800" step="60" /><small>约百米网格内复用结果，减少请求。</small></label>
+                  <label class="field"><span>请求超时（秒）</span><input id="mobile-amap-timeout" type="number" min="1" max="20" step="1" /><small>失败时继续使用原有位置上下文。</small></label>
+                </div>
+              </section>
+              <label class="switch-row full"><span><b>统一代理一起 / 游戏 / 协同房间</b><small>手机只访问移动网关，由网关转发页面、接口、媒体与 WebSocket；推荐保持开启。</small></span><input id="mobile-proxy-rooms" type="checkbox" /><i aria-hidden="true"></i></label>
+              <label class="switch-row full"><span><b>允许屏幕共享状态上报</b><small>Screen Companion 仍需单独配置远程识屏和令牌。</small></span><input id="mobile-screen" type="checkbox" /><i aria-hidden="true"></i></label>
+              <label class="switch-row full"><span><b>允许接收身体与活动数据</b><small>仅接收结构化数值和活动状态，默认关闭；数据只在内存中短期保留，不用于医疗诊断。</small></span><input id="mobile-telemetry" type="checkbox" /><i aria-hidden="true"></i></label>
+              <label class="switch-row full"><span><b>允许手机上报前台应用摘要（伪窥屏）</b><small>须由用户在 Android 端主动开启“手机活动摘要”并授予“使用情况访问”；不接收截图、窗口标题或消息内容。</small></span><input id="mobile-activity" type="checkbox" /><i aria-hidden="true"></i></label>
+              <div class="form-actions"><button class="button primary" type="submit">保存并重启网关</button></div>
+            </form>
+          </section>
+          <section class="panel-section"><div class="section-head"><div><p>连接信息</p><h2>当前端点与排障</h2></div></div><div id="mobile-runtime" class="endpoint-box"></div></section>
+        </section>
+      </main>
+    </div>
+  </div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js"></script>
+</body>
+</html>

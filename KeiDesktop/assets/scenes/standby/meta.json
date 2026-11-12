@@ -1,0 +1,17 @@
+{
+  "id": "cg1-standby",
+  "background": "cg1_standby_bg_v1.png",
+  "characterSlot": {
+    "anchorX": 0.28,
+    "anchorY": 0.91,
+    "scale": 0.80,
+    "view": "front",
+    "variant": "standing"
+  },
+  "subtitleSafeArea": {
+    "x": 0.18,
+    "y": 0.82,
+    "width": 0.60,
+    "height": 0.12
+  }
+}
