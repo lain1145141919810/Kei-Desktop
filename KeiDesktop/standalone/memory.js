@@ -5,7 +5,7 @@ module.exports=function openMemory(file){
     db.exec('CREATE TABLE IF NOT EXISTS memories(id INTEGER PRIMARY KEY, text TEXT UNIQUE NOT NULL)');
     const insert=db.prepare('INSERT OR IGNORE INTO memories(text) VALUES (?)');
     function add(text){
-        if(typeof text!=='string'||!text.trim()||text.length>4000)throw Error('记忆需为 1–4000 字');
+        if(typeof text!=='string'||!text.trim()||text.length>4000)throw Error('記憶は1～4000文字で入力してください');
         insert.run(text.trim());
     }
     function list(){return db.prepare('SELECT * FROM memories ORDER BY id DESC').all();}

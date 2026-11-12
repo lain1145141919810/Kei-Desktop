@@ -31,7 +31,7 @@ async function speak(text){
 }
 window.kei.onClose(async()=>{closing=true;activeAudio?.pause();try{if(state)await scene(state.media.ending,4500);}finally{window.kei.closed();}});
 window.kei.state().then(value=>{state=value;visual(el('portrait'),state.media.portrait,true);if(!closing)scene(state.media.opening,8000);});
-el('settings').onclick=async()=>{const error=await window.kei.settings();log(error||'保存接口配置后，重新启动 Kei Desktop 生效。','info');};
+el('settings').onclick=async()=>{const error=await window.kei.settings();log(error?'設定ファイルを開けませんでした。':'設定を保存してから Kei Desktop を再起動してください。','info');};
 for(const button of document.querySelectorAll('[data-media]'))button.onclick=async()=>{state.media=await window.kei.media(button.dataset.media);visual(el('portrait'),state.media.portrait,true);};
 document.querySelector('form').onsubmit=async event=>{
     event.preventDefault();
@@ -49,9 +49,9 @@ document.querySelector('form').onsubmit=async event=>{
 function showNotes(rows){
     const container=el('notes');container.replaceChildren();
     for(const row of rows){const p=document.createElement('p'), button=document.createElement('button');
-        p.textContent=row.text+' ';button.textContent='删除';button.onclick=async()=>showNotes(await window.kei.forget(row.id));p.append(button);container.append(p);}
+        p.textContent=row.text+' ';button.textContent='削除';button.onclick=async()=>showNotes(await window.kei.forget(row.id));p.append(button);container.append(p);}
 }
 el('memory').onclick=async()=>{showNotes(await window.kei.memories());el('memory-panel').showModal();};
 el('close-memory').onclick=()=>el('memory-panel').close();
 el('save-note').onclick=async()=>{try{showNotes(await window.kei.remember(el('note').value));el('note').value='';}catch(e){alert(e.message);}};
-el('import-memory').onclick=async()=>{if(confirm('将所选个人数据库中全部有效记忆导入此桌面，并用于以后的对话？')){try{showNotes(await window.kei.importMemory());}catch(e){alert(e.message);}}};
+el('import-memory').onclick=async()=>{if(confirm('選んだ個人用データベースから有効な記憶をすべて取り込み、今後の会話で使いますか？')){try{showNotes(await window.kei.importMemory());}catch(e){alert(e.message);}}};

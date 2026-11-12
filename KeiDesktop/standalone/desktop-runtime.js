@@ -35,7 +35,7 @@ module.exports=async function desktopRuntime({getWindow,service,config,media,set
         const {session_id,turn_id}=event, base={session_id,turn_id};
         emit(event.type,base,{text:event.text});emit('agent.begin',base);
         try{
-            const note=/^(?:请)?(?:记住|记一下)[：:，,\s]*(.+)$/s.exec(event.text);
+            const note=/^(?:覚えて(?:おいて)?|記憶して|记住|记一下)[：:、，,\s]*(.+)$/s.exec(event.text) || /^(.+?)(?:と覚えておいて|を覚えておいて)[。！]?$/s.exec(event.text);
             if(note && !event.contextOnly)memory.add(note[1]);
             const context=memory.recall(event.text);
             const {text}=await service.run('chat',{session:conversation,text:event.text,history,
@@ -57,27 +57,27 @@ module.exports=async function desktopRuntime({getWindow,service,config,media,set
         return {status:'accepted'};
     }
     function handle(name,fn){ipcMain.handle('kei:local-'+name, (e,...args)=>{
-        if(e.sender!==getWindow()?.webContents)throw Error('Invalid sender');return fn(...args);
+        if(e.sender!==getWindow()?.webContents)throw Error('呼び出し元を確認できません');return fn(...args);
     });}
     handle('media',()=>({portrait:config.media.portrait?media().portrait:null,opening:media().opening,ending:media().ending}));
     handle('audio-event',(type,base)=>{if(['tts.start','tts.end'].includes(type))emit(type,base,{payload:{status:'completed',segment_final:true}});});
     handle('mic',async bytes=>{
-        if(!(bytes instanceof Uint8Array)||!bytes.length||bytes.length>16e6)throw Error('录音为空或过长');
+        if(!(bytes instanceof Uint8Array)||!bytes.length||bytes.length>16e6)throw Error('録音が空か、長すぎます');
         const audio=path.join(app.getPath('temp'),'kei-'+randomUUID()+'.webm');
         try{
             fs.writeFileSync(audio,bytes);
             const {stdout}=await promisify(execFile)(config.asr.python,[path.join(__dirname,'recognize.py'),config.asr.model,audio],{windowsHide:true,timeout:300000});
             const {text}=JSON.parse(stdout.trim().split(/\r?\n/).at(-1));
-            if(!text)throw Error('未识别出文字');
+            if(!text)throw Error('音声から言葉を認識できませんでした');
             await publish({type:'user.transcript',text,session_id:'desktop',turn_id:randomUUID()});return text;
         }finally{fs.rmSync(audio,{force:true});}
     });
     async function observe(image,signal){
         const v=config.vision.url?config.vision:config.chat;
-        if(!v.url||!v.model)throw Error('请配置支持图片的 vision.url 和 vision.model');
+        if(!v.url||!v.model)throw Error('画像入力に対応した vision.url と vision.model を設定してください');
         const response=await fetch(v.url,{method:'POST',signal,headers:{'Content-Type':'application/json',...(v.key&&{Authorization:'Bearer '+v.key})},
-            body:JSON.stringify({model:v.model,messages:[{role:'user',content:[{type:'text',text:'简短描述屏幕内容，只描述可见内容。'},{type:'image_url',image_url:{url:image}}]}]})});
-        if(!response.ok)throw Error('视觉接口 HTTP '+response.status);
+            body:JSON.stringify({model:v.model,messages:[{role:'user',content:[{type:'text',text:'画面上で確認できる内容だけを、日本語で簡潔に説明してください。'},{type:'image_url',image_url:{url:image}}]}]})});
+        if(!response.ok)throw Error('画像認識サービスの応答：HTTP '+response.status);
         return {text:(await response.json()).choices?.[0]?.message?.content};
     }
     app.once('will-quit',()=>{files.close();memory.close();});

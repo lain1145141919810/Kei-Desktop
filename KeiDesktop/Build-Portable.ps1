@@ -19,7 +19,7 @@ try {
     }
     Copy-Item "$PSScriptRoot/vendor/cubism/Framework/LICENSE.md" "$bundle/Cubism-Framework-LICENSE.md"
     '{"name":"kei-desktop","productName":"Kei Desktop","version":"0.3.0","main":"entry.js"}' | Set-Content "$dest/package.json" -Encoding ascii
-    Copy-Item "$PSScriptRoot/../THIRD_PARTY_NOTICES.md","$PSScriptRoot/../docs/STANDALONE.zh.md" $bundle
+    Copy-Item "$PSScriptRoot/../THIRD_PARTY_NOTICES.md","$PSScriptRoot/../docs/STANDALONE.ja.md" $bundle
     Copy-Item "$PSScriptRoot/../LICENSE" "$bundle/PROJECT-LICENSE"
     New-Item -ItemType Directory $OutputDirectory -Force | Out-Null
     $zip = Join-Path (Resolve-Path $OutputDirectory) 'Kei-Desktop-Windows-x64.zip'
@@ -32,3 +32,4 @@ try {
         Remove-Item -LiteralPath $resolved -Recurse -Force
     }
 }
+

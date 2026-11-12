@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src file:; media-src file: blob:">
 <title>Kei Desktop</title><link rel="stylesheet" href="style.css"></head>
 <body><aside><div id="portrait"></div><h1>Kei Desktop</h1></aside>
-<main><header><select id="mode" aria-label="对话模式"><option value="chat">对话</option><option value="task">DSH 任务</option></select>
-<details><summary>设置</summary><div class="menu"><button id="memory">长期记忆</button><button id="settings">打开接口配置</button><button data-media="portrait">替换立绘</button><button data-media="opening">替换开头画面</button><button data-media="ending">替换结尾画面</button></div></details></header>
-<dialog id="memory-panel"><h2>长期记忆</h2><input id="note" maxlength="4000" placeholder="希望凯伊记住的事"><button id="save-note">保存</button><button id="import-memory">导入旧记忆库</button><div id="notes"></div><button id="close-memory">关闭</button></dialog><section id="log" aria-live="polite"></section><form><textarea required maxlength="16000" aria-label="消息" placeholder="输入消息"></textarea><button id="send">发送</button></form></main>
+<main><header><select id="mode" aria-label="会話モード"><option value="chat">会話</option><option value="task">DSH タスク</option></select>
+<details><summary>設定</summary><div class="menu"><button id="memory">長期記憶</button><button id="settings">接続設定を開く</button><button data-media="portrait">立ち絵を変更</button><button data-media="opening">起動画面を変更</button><button data-media="ending">終了画面を変更</button></div></details></header>
+<dialog id="memory-panel"><h2>長期記憶</h2><input id="note" maxlength="4000" placeholder="ケイに覚えてほしいこと"><button id="save-note">保存</button><button id="import-memory">以前の記憶を取り込む</button><div id="notes"></div><button id="close-memory">閉じる</button></dialog><section id="log" aria-live="polite"></section><form><textarea required maxlength="16000" aria-label="メッセージ" placeholder="メッセージを入力"></textarea><button id="send">送信</button></form></main>
 <div id="overlay" hidden></div><script src="ui.js"></script></body></html>

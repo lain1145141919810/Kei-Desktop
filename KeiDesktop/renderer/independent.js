@@ -17,20 +17,20 @@ if(window.keiLocal){
                 clearTimeout(timeout);
                 stream.getTracks().forEach(track=>track.stop());
                 try{
-                    notify('正在识别语音');
+                    notify('音声を認識しています');
                     await bridge.mic(new Uint8Array(await new Blob(chunks).arrayBuffer()));
                 }catch(error){notify(error.message);}
                 finally{recordingBusy=false;recorder=null;}
             };
             recorder.start();const timeout=setTimeout(()=>{if(recorder?.state==='recording')recorder.stop();},60000);
-            notify('正在录音，再按 F8 或录音按钮结束');
+            notify('録音中です。F8 または録音ボタンで終了します');
         }catch(error){stream?.getTracks().forEach(track=>track.stop());notify(error.message);}
         finally{recordingBusy=false;}
     }
     bridge.onMic(microphone);
     const mic=document.createElement('button');
-    mic.type='button';mic.textContent='麦克风';mic.title='开始或停止录音（F8）';
-    const admin=document.querySelector('#reading-button');
+    mic.type='button';mic.textContent='録音';mic.title='録音の開始・停止（F8）';
+    const admin=document.querySelector('#admin-button');
     if(admin){mic.className=admin.className;admin.insertAdjacentElement('afterend',mic);mic.onclick=microphone;}
     bridge.audio(async data=>{
         if(audio)audio.pause();

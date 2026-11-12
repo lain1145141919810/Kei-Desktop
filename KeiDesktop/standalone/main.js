@@ -11,7 +11,7 @@ const defaults = {
     chat:{provider:'compatible',url:'http://127.0.0.1:11434/v1/chat/completions',model:'',key:''},
     astrbot:{url:'http://127.0.0.1:6185/api/v1/chat',key:''},
     dsh:{url:'',token:'',entry:'',workspace:''},
-    speech:{enabled:false,url:'http://127.0.0.1:9880/tts',language:'zh',referenceLanguage:'ja',referenceText:'',referencePath:''},
+    speech:{enabled:false,url:'http://127.0.0.1:9880/tts',language:'ja',referenceLanguage:'ja',referenceText:'',referencePath:''},
     asr:{python:'python',model:'small'},vision:{url:'',model:'',key:''},
     media:{portrait:'',opening:'',ending:''},api:{port:17883,token:randomBytes(32).toString('hex')}
 };
@@ -31,6 +31,7 @@ module.exports=async function setup(getWindow){
     file=path.join(app.getPath('userData'),'standalone.json');
     const saved=fs.existsSync(file)?JSON.parse(fs.readFileSync(file,'utf8')):{};
     config=Object.fromEntries(Object.entries(defaults).map(([k,v])=>[k,{...v,...saved[k]}]));
+    config.speech.language='ja';
     save();
     service=createService(config);
     await new Promise((resolve,reject)=>service.server.once('error',reject).listen(config.api.port,'127.0.0.1',resolve));
@@ -45,15 +46,15 @@ module.exports=async function setup(getWindow){
     window.loadFile(path.join(__dirname,'index.html'));
     }
     const handle=(name,fn)=>ipcMain.handle('kei-independent:'+name,(e,...args)=>{
-        if(e.senderFrame!==window?.webContents.mainFrame) throw new Error('Invalid sender');
+        if(e.senderFrame!==window?.webContents.mainFrame) throw new Error('呼び出し元を確認できません');
         return fn(...args);
     });
     handle('state',()=>({media:media(),voice:config.speech.enabled,provider:config.chat.provider}));
     handle('run',(action,body)=>service.run(action,body));
     handle('settings',()=>shell.openPath(file));
     handle('media',async key=>{
-        if(!Object.hasOwn(defaults.media,key)) throw new Error('Unknown media');
-        const choice=await dialog.showOpenDialog(window,{properties:['openFile'],filters:[{name:'角色画面',extensions:['png','jpg','jpeg','webp','gif','mp4','webm']}]});
+        if(!Object.hasOwn(defaults.media,key)) throw new Error('未対応のメディアです');
+        const choice=await dialog.showOpenDialog(window,{properties:['openFile'],filters:[{name:'画像・動画',extensions:['png','jpg','jpeg','webp','gif','mp4','webm']}]});
         if(!choice.canceled){config.media[key]=choice.filePaths[0];save();}
         return media();
     });
@@ -62,7 +63,7 @@ module.exports=async function setup(getWindow){
     handle('forget',id=>{runtime.memory.remove(Number(id));return runtime.memory.list();});
     handle('remember',text=>{runtime.memory.add(text);return runtime.memory.list();});
     handle('import',async()=>{
-        const choice=await dialog.showOpenDialog(window,{properties:['openFile'],filters:[{name:'MemoryCompanion 数据库',extensions:['db']}]});
+        const choice=await dialog.showOpenDialog(window,{properties:['openFile'],filters:[{name:'MemoryCompanion データベース',extensions:['db']}]});
         if(!choice.canceled)runtime.memory.importFile(choice.filePaths[0]);
         return runtime.memory.list();
     });

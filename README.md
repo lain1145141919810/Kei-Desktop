@@ -1,78 +1,34 @@
 <div align="center">
 
-<img src="KeiDesktop/assets/branding/kei-logo.png" width="180" alt="Kei Desktop Logo">
+<img src="KeiDesktop/assets/branding/kei-logo.png" width="180" alt="ケイのロゴ">
 
 # Kei Desktop
 
-**与你交谈，陪你阅读，也能把工作交给她。**
+Windows 用の Live2D デスクトップアシスタント。ケイと日本語で話し、資料を読み、作業を依頼できます。
 
-Windows 桌面上的 Live2D AI 助手
-
-[功能](#功能) · [实机展示](#实机展示) · [部署与迁移](docs/MIGRATION.zh.md) · [模型配置](KeiRuntime/data/DSH-MODELS.zh.md)
+[Windows x64 版のダウンロード](https://github.com/lain1145141919810/Kei-Desktop/releases/tag/v0.3.0) · [日本語設定ガイド](docs/STANDALONE.ja.md)
 
 </div>
 
-## Windows 独立版
+![デスクトップの全体画面](docs/screenshots/full-window.png)
 
-[下载 Windows x64 独立版](https://github.com/lain1145141919810/Kei-Desktop/releases/tag/v0.3.0) · [接口、语音权重与素材配置](docs/STANDALONE.zh.md)
+## はじめに
 
-解压后运行 Kei Desktop.exe。可直接连接模型 API，按需接入 AstrBot、DSH 和 GPT-SoVITS。独立版沿用原桌面，支持 Live2D、语音输入、本地长期记忆、PDF 选段问答和屏幕观察。
+ZIP を展開し、Kei Desktop.exe を起動します。「操作」から管理ウィンドウを開き、会話用モデルを設定してください。Live2D は同梱されています。音声認識、読み上げ、AstrBot、DSH は必要に応じて追加できます。
 
-![Kei Desktop 完整窗口](docs/screenshots/full-window.png)
-
-## 功能
-
-| 日常陪伴 | 工作与学习 |
+| 機能 | 使い方 |
 |---|---|
-| **语音与文字对话** — 输入问题或直接开口，字幕、口型与表情跟随语音播放 | **任务执行** — 把工作交给 DSH 或 Codex，查看进展和执行结果 |
-| **桌面小窗** — 让凯伊留在桌面，用气泡交流，随时回到完整窗口 | **子 agent 分工** — 自动委派、先询问或手动指定执行与复核模型 |
-| **对话续接** — 查看历史、选择旧对话继续，长对话通过摘要开启下一段 | **文件上下文** — 拖入文件，让执行器带着资料完成任务 |
-| **屏幕陪伴** — 开启观察后，让凯伊了解你眼前的工作 | **PDF 阅读** — 围绕选中文字提问，记录阅读计划与进度 |
-| **存储管理** — 按日期展开记录，清理上下文，释放空闲执行器 | **专注计时** — 在对话旁使用番茄钟，安排工作与休息 |
+| 音声入力 | F8 で録音を開始・終了し、日本語の発話を会話に送ります。 |
+| 長期記憶 | 好みや覚えてほしい事柄を登録すると、再起動後も関連する会話で使えます。 |
+| PDF 読書 | 選択した文章を Ctrl+Alt+Q で取り込み、抜粋への質問や読書計画の作成ができます。 |
+| 画面観察 | Ctrl+Alt+S で切り替え、表示中の画面について画像対応モデルに相談できます。 |
+| デスクトップ小窓 | ダブルクリック、Esc、Ctrl+Alt+K で元の表示に戻れます。 |
+| 集中タイマー | 作業と休憩の時間をデスクトップで管理できます。 |
 
-## 实机展示
+![デスクトップ小窓](docs/screenshots/compact-mode.png)
+![読書パネル](docs/screenshots/pdf-reading.png)
+![集中タイマー](docs/screenshots/focus-timer.png)
 
-### 留在桌面的凯伊
+[音声モデル、素材、API の設定](docs/STANDALONE.ja.md) · [従来版の移行手順（中国語）](docs/MIGRATION.zh.md) · [中国語のプロジェクト紹介](README.zh.md)
 
-小窗保留角色、对话气泡和输入入口。双击角色、按 Esc 或 Ctrl + Alt + K，可以回到完整窗口。
-
-![Kei Desktop 小窗模式](docs/screenshots/compact-mode.png)
-
-### 专注一会儿
-
-打开计时器，在聊天与工作之间安排一段专注时间。
-
-![番茄钟](docs/screenshots/focus-timer.png)
-
-### 一起读一份 PDF
-
-在阅读器中选中文字，用 Ctrl + Alt + Q 交给凯伊解释、总结或翻译，也可以制定阅读计划。
-
-![PDF 阅读面板](docs/screenshots/pdf-reading.png)
-
-## 开始使用
-
-准备 Windows、Python 3.11、Node.js 24 和 Git，克隆项目。
-
-    git clone https://github.com/lain1145141919810/Kei-Desktop.git
-    cd Kei-Desktop
-
-按[部署与迁移指南](docs/MIGRATION.zh.md)安装后台、语音依赖和角色运行环境，然后启动。
-
-    cd D:/KeiDesktop
-    ./Start-Kei.ps1
-
-DSH 模型目录支持为不同工作分配不同模型。[查看配置方法](KeiRuntime/data/DSH-MODELS.zh.md)
-
-## 项目结构
-
-| 目录 | 用途 |
-|---|---|
-| KeiDesktop/ | Electron 窗口、Live2D、界面与测试 |
-| KeiRuntime/ | 对话、语音、任务执行与会话存储 |
-| AstrBot-plugins/astrbot_plugin_kei/ | Kei 自身的后台桥接 |
-| GPT-SoVITS-overlay/ | 语音服务适配 |
-
-## 开源与致谢
-
-自有代码采用 [MIT License](LICENSE)。素材与第三方组件的作者、来源和许可见[借物表](THIRD_PARTY_NOTICES.md)。
+開発時は KeiDesktop フォルダーで npm ci、npm start の順に実行します。Windows 配布用 ZIP は Build-Portable.ps1 で生成できます。自作コードのライセンスと素材の出典は [LICENSE](LICENSE) および [第三者素材の表記](THIRD_PARTY_NOTICES.md) を参照してください。

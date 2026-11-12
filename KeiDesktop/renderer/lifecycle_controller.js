@@ -142,7 +142,7 @@ class DesktopLifecycleController {
         document.body.classList.add("lifecycle-closing");
         this.overlay.classList.remove("is-dismissed");
         this.overlay.setAttribute("aria-hidden", "false");
-        this.overlay.setAttribute("aria-label", "关闭画面");
+        this.overlay.setAttribute("aria-label", "終了画面");
         this.onClose(this.loginTurnId);
         await this.playVideo("../assets/lifecycle/shutdown.mp4", 4500);
         console.info("[Kei Lifecycle] Shutdown animation completed");
