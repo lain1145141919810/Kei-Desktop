@@ -15,7 +15,7 @@
 5. 安装 uv 并用 `uv tool install --python 3.11 astrbot==4.28.2` 安装 AstrBot。原启动器使用用户目录下的 uv 工具路径。用 AstrBot 管理页配置身份、模型提供商及 API 密钥。所需第三方插件通过原作者渠道安装，桌面桥的长期记忆功能需接入原有记忆服务。桌面桥插件首次启动会创建本机专用令牌。将 ASTRBOT_API_KEY 设置为本机用户环境变量。
 6. 在 GPT-SoVITS 目录创建 .venv，按上游说明安装对应 CUDA/PyTorch 依赖，再安装与原环境匹配的 aqua-tts 0.2.0。恢复下方列出的权重和参考音频。
 7. 若使用 DSH，安装 `npm install -g @deepseek-ai/dsh` 并配置自己的 DeepSeek 凭据。若使用 Codex，在 D:/KeiRuntime/tools/codex-cli 执行 `npm ci`，重新登录；核对 data/executors.json 中受验证的程序、工作区和 SHA-256。更换二进制后先做权限测试。
-8. 在 D:/KeiDesktop 运行 `npm test`，再运行 `./Start-Kei.ps1 -CheckOnly`。通过后用 `./Start-Kei.ps1` 启动。在管理页看服务健康状态，发送一条文字消息，确认回复、语音和口型。再用一个临时文本文件验证执行器能读到文件内容。
+8. 在 D:/KeiDesktop 运行 `npm test`，再运行 `./Start-KeiLegacy.ps1 -CheckOnly`。通过后用 `./Start-KeiLegacy.ps1` 启动。在管理页看服务健康状态，发送一条文字消息，确认回复、语音和口型。再用一个临时文本文件验证执行器能读到文件内容。
 
 ## 需要通过私有介质迁移的内容
 
