@@ -43,7 +43,7 @@ function createService(config) {
         }
         if (config.chat.provider === 'astrbot') {
             const a = config.astrbot;
-            const response = await post(a.url, {username:'kei-desktop',session_id:session,message:text,enable_streaming:true}, a.key);
+            const response = await post(a.url, {username:'kei-desktop',session_id:session,message:body.memory ? '用户保存的记忆：'+body.memory+'\n用户消息：'+text : text,enable_streaming:true}, a.key);
             const pieces = [];
             for (const line of (await response.text()).split(/\r?\n/)) {
                 if (!line.startsWith('data:')) continue;
@@ -60,7 +60,7 @@ function createService(config) {
         if (!c.url || !c.model) throw new Error('请在设置中填写模型接口地址和模型名');
         const history = body.history ?? [];
         if (!Array.isArray(history) || history.length > 64 || history.some(m => !['user','assistant'].includes(m?.role) || typeof m.content !== 'string')) throw new Error('无效的对话历史');
-        const response = await post(c.url,{model:c.model,messages:[...history,{role:'user',content:text}],stream:false},c.key);
+        const response = await post(c.url,{model:c.model,messages:[...(body.memory?[{role:'system',content:'用户保存的记忆，仅用于相关问题：'+body.memory}]:[]),...history,{role:'user',content:text}],stream:false},c.key);
         const reply = (await response.json()).choices?.[0]?.message?.content;
         if (typeof reply !== 'string' || !reply.trim()) throw new Error('模型未返回文本');
         return {text:reply};

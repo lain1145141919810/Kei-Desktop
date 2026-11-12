@@ -1,10 +1,10 @@
 # 独立版配置
 
-从 [v0.2.0 发布页](https://github.com/lain1145141919810/Kei-Desktop/releases/tag/v0.2.0) 下载 Kei-Desktop-Windows-x64.zip。解压整个目录，运行 **Kei Desktop.exe**。文字对话需要一个可用的模型服务。桌面程序可先离线启动、显示角色和更换素材。开发者也可以在 KeiDesktop 目录执行 `npm ci`、`npm start`。运行 `./Build-Portable.ps1` 可重新生成 Windows 压缩包。
+从 [v0.3.0 发布页](https://github.com/lain1145141919810/Kei-Desktop/releases/tag/v0.3.0) 下载 Kei-Desktop-Windows-x64.zip。解压整个目录，运行 **Kei Desktop.exe**。文字对话需要一个可用的模型服务。桌面程序可先离线启动、显示角色和更换素材。开发者也可以在 KeiDesktop 目录执行 `npm ci`、`npm start`。运行 `./Build-Portable.ps1` 可重新生成 Windows 压缩包。
 
 ## 对话与任务
 
-在右上角选择「设置 → 打开接口配置」。这是当前 Windows 用户的 standalone.json，含本地 API 令牌。保存后退出并重启程序。
+在主窗口通过「操作 → 管理」打开管理窗口，再选择「设置 → 打开接口配置」。这是当前 Windows 用户的 standalone.json，含本地 API 令牌。保存后退出并重启程序。
 
 | 配置项 | 填写内容 |
 |---|---|
@@ -13,7 +13,15 @@
 | dsh | 可选。任务模式与普通对话分开。使用现有 KeiRuntime 时，填 dsh.url（完整 /executors/run 地址）及 dsh.token（其 desktop-bridge.token），并在服务端选 DSH 后端。 |
 | dsh.entry、dsh.workspace | 独立运行本机 DSH 时，留空 dsh.url，安装 Node.js 和 @deepseek-ai/dsh，完成 DSH 自身登录。用 `npm root -g` 找到全局模块目录，把其下 @deepseek-ai/dsh/lib/bin.js 的完整路径填入 entry，workspace 填一个已存在的任务目录。先在该目录运行 `dsh headless "回复 OK"` 确认服务可用。任务按当前 Windows 用户的权限执行。 |
 
-独立版提供文字对话、DSH 任务和可选语音朗读。原有的 Live2D、麦克风识别、原生记忆、PDF 阅读和屏幕观察等完整功能仍由 [原版部署流程](MIGRATION.zh.md) 提供，启动脚本为 Start-KeiLegacy.ps1。
+## 原桌面与本地功能
+
+默认打开原版桌面。通过「操作 → 管理」打开接口设置、DSH 任务和素材设置。Live2D 模型、纹理和着色器随程序提供，离线即可显示；清空 media.portrait 并重启可从自定义立绘切回模型。
+
+- **语音输入**。先安装 Python 3.11，在 PowerShell 执行 `py -3.11 -m venv "$env:LOCALAPPDATA/KeiASR"`，然后执行 `& "$env:LOCALAPPDATA/KeiASR/Scripts/python.exe" -m pip install faster-whisper`。在配置的 asr.python 填这个 python.exe 的实际绝对路径。asr.model 默认 small，首次识别时下载模型，也可填现有 CTranslate2 Whisper 模型目录。按 F8 开始和结束录音，识别出的文字直接进入对话。需要 Windows 麦克风权限，识别在本机 CPU 上运行。
+- **长期记忆**。对凯伊说「记住：……」或在管理窗口的「设置 → 长期记忆」添加条目。记忆保存到当前用户的 memory.sqlite；可逐条删除。导入个人旧库时选择 MemoryCompanion 的 memory_companion.db，程序只读源库，将有效条目的正文复制到本地。导入后属于当前桌面用户。这里不迁移关系图、权限和聊天日志。
+- **PDF 阅读**。在阅读器中选中文字后按 Ctrl+Alt+Q，或在「読書」面板粘贴片段。可以创建阅读计划、更新页码、围绕片段提问。PDF 原文件保留在阅读器中。
+- **屏幕观察**。在「操作」中打开或关闭，快捷键为 Ctrl+Alt+S。观察会把当前显示器截图发给配置的视觉模型。填写 vision.url、vision.model 和可选的 vision.key；留空 vision.url 时使用 chat 的兼容接口，该模型须支持图片输入。关闭观察会停止后续捕获并清除当前观察缓存。
+- 原 AstrBot 插件链仍可通过 [旧版部署流程](MIGRATION.zh.md) 启动。
 
 ## 绘制角色与过场
 

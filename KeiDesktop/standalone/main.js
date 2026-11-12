@@ -5,13 +5,14 @@ const { pathToFileURL } = require('node:url');
 const { randomBytes } = require('node:crypto');
 const {createService} = require('./service');
 
-let window, service, config, file, closing = false, finished = false;
+let window, service, config, file;
 const assets = path.join(__dirname,'../assets');
 const defaults = {
     chat:{provider:'compatible',url:'http://127.0.0.1:11434/v1/chat/completions',model:'',key:''},
     astrbot:{url:'http://127.0.0.1:6185/api/v1/chat',key:''},
     dsh:{url:'',token:'',entry:'',workspace:''},
     speech:{enabled:false,url:'http://127.0.0.1:9880/tts',language:'zh',referenceLanguage:'ja',referenceText:'',referencePath:''},
+    asr:{python:'python',model:'small'},vision:{url:'',model:'',key:''},
     media:{portrait:'',opening:'',ending:''},api:{port:17883,token:randomBytes(32).toString('hex')}
 };
 function save() {
@@ -26,8 +27,7 @@ function media() {
         return [key,{src:pathToFileURL(src).href,video:/\.(webm|mp4)$/i.test(src)}];
     }));
 }
-if (!app.requestSingleInstanceLock()) app.quit();
-else app.whenReady().then(async()=>{
+module.exports=async function setup(getWindow){
     file=path.join(app.getPath('userData'),'standalone.json');
     const saved=fs.existsSync(file)?JSON.parse(fs.readFileSync(file,'utf8')):{};
     config=Object.fromEntries(Object.entries(defaults).map(([k,v])=>[k,{...v,...saved[k]}]));
@@ -35,13 +35,17 @@ else app.whenReady().then(async()=>{
     service=createService(config);
     await new Promise((resolve,reject)=>service.server.once('error',reject).listen(config.api.port,'127.0.0.1',resolve));
     nativeTheme.themeSource='dark';
+    function settings(){
+    if(window&&!window.isDestroyed()){window.show();window.focus();return;}
     window=new BrowserWindow({width:1080,height:740,minWidth:640,minHeight:480,title:'Kei Desktop',
         icon:path.join(assets,'branding/kei-logo.png'),webPreferences:{preload:path.join(__dirname,'preload.js'),sandbox:true}});
     window.removeMenu();
     window.webContents.setWindowOpenHandler(()=>({action:'deny'}));
     window.webContents.on('will-navigate',e=>e.preventDefault());
+    window.loadFile(path.join(__dirname,'index.html'));
+    }
     const handle=(name,fn)=>ipcMain.handle('kei-independent:'+name,(e,...args)=>{
-        if(e.senderFrame!==window.webContents.mainFrame) throw new Error('Invalid sender');
+        if(e.senderFrame!==window?.webContents.mainFrame) throw new Error('Invalid sender');
         return fn(...args);
     });
     handle('state',()=>({media:media(),voice:config.speech.enabled,provider:config.chat.provider}));
@@ -53,17 +57,15 @@ else app.whenReady().then(async()=>{
         if(!choice.canceled){config.media[key]=choice.filePaths[0];save();}
         return media();
     });
-    handle('closed',()=>{if(closing){finished=true;app.quit();}});
-    window.on('close',event=>{
-        if(finished)return;
-        event.preventDefault();
-        if(closing)return;
-        closing=true;
-        window.webContents.send('kei-independent:closing');
-        setTimeout(()=>{finished=true;app.quit();},5500).unref();
+    const runtime=await require('./desktop-runtime')({getWindow,service,config,media,settings});
+    handle('memories',()=>runtime.memory.list());
+    handle('forget',id=>{runtime.memory.remove(Number(id));return runtime.memory.list();});
+    handle('remember',text=>{runtime.memory.add(text);return runtime.memory.list();});
+    handle('import',async()=>{
+        const choice=await dialog.showOpenDialog(window,{properties:['openFile'],filters:[{name:'MemoryCompanion 数据库',extensions:['db']}]});
+        if(!choice.canceled)runtime.memory.importFile(choice.filePaths[0]);
+        return runtime.memory.list();
     });
-    await window.loadFile(path.join(__dirname,'index.html'));
-}).catch(error=>{dialog.showErrorBox('Kei Desktop 启动失败',error.message);app.exit(1);});
-app.on('second-instance',()=>{window?.restore();window?.focus();});
-app.on('window-all-closed',()=>app.quit());
-app.on('will-quit',()=>service?.server.close());
+    app.once('will-quit',()=>service.server.close());
+    return runtime;
+};

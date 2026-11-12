@@ -1081,7 +1081,10 @@ async function start() {
     character.setVisible(!document.hidden);
 
 
-    connect();
+    if(window.keiLocal){
+        window.keiLocal.events(event=>{lifecycle.observeEvent(event);handleRuntimeEvent(event);});
+        setConnectionState(true);lifecycle.runtimeReady();
+    }else connect();
 }
 
 

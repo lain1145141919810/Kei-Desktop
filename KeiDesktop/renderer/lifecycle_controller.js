@@ -27,6 +27,7 @@ class DesktopLifecycleController {
         // Replacing startup with shutdown settles the old wait immediately.
         this.videoFinish?.();
         this.video.pause();
+        if(window.keiLocal)return this.playCustom(source,timeoutMs);
         this.video.src = source;
         return new Promise((resolve) => {
             let timer;
@@ -43,6 +44,21 @@ class DesktopLifecycleController {
             timer = setTimeout(finish, timeoutMs);
             this.video.play().catch(finish);
         });
+    }
+
+    async playCustom(source,limit){
+        const media=await window.keiLocal.media();
+        const chosen=source.includes('shutdown')?media.ending:media.opening;
+        const item=chosen.video?this.video:document.createElement('img');
+        if(item!==this.video){this.video.hidden=true;this.overlay.append(item);item.style.cssText='width:100%;height:100%;object-fit:contain';}
+        item.src=chosen.src;
+        await new Promise(resolve=>{
+            const done=()=>{clearTimeout(timer);resolve();};
+            const timer=setTimeout(done,chosen.video?limit:1500);
+            this.videoFinish=done;item.onerror=done;
+            if(chosen.video){item.onended=done;item.play().catch(done);}
+        });
+        if(item!==this.video){item.remove();this.video.hidden=false;}
     }
 
     async start() {

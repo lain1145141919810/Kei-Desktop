@@ -25,3 +25,12 @@ contextBridge.exposeInMainWorld("keiDesktop", {
         return () => ipcRenderer.removeListener("kei:prepare-close", listener);
     },
 });
+
+if(process.argv.includes('--kei-independent'))contextBridge.exposeInMainWorld('keiLocal',{
+    events:fn=>ipcRenderer.on('kei:local-event',(_,event)=>fn(event)),
+    media:()=>ipcRenderer.invoke('kei:local-media'),
+    mic:bytes=>ipcRenderer.invoke('kei:local-mic',bytes),
+    onMic:fn=>ipcRenderer.on('kei:local-microphone',()=>fn()),
+    audio:fn=>ipcRenderer.on('kei:local-audio',(_,data)=>fn(data)),
+    audioEvent:(type,base)=>ipcRenderer.invoke('kei:local-audio-event',type,base)
+});

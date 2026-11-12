@@ -3,9 +3,10 @@ const fs = require('fs');
 const path = require('path');
 const { execFile } = require('child_process');
 const { randomUUID } = require('crypto');
-const cache = 'D:/KeiRuntime/data/desktop-observation.json';
+const defaultCache = 'D:/KeiRuntime/data/desktop-observation.json';
 
-module.exports = function setupCompanion({ ipcMain, getAdmin, openAdmin, publish, onSelection }) {
+module.exports = function setupCompanion({ ipcMain, getAdmin, openAdmin, publish, onSelection, observeImage, cacheFile }) {
+    const cache=cacheFile || defaultCache;
     let enabled = false, generation = 0, timer, controller, busy = false;
     let previous, lastSuccess = 0, description = '', error = '', selection = '', source = '';
     let selectionBusy = false;
@@ -34,12 +35,15 @@ module.exports = function setupCompanion({ ipcMain, getAdmin, openAdmin, publish
             const timeout = setTimeout(() => controller?.abort(), 32000);
             let result;
             try {
+                if(observeImage) result=await observeImage('data:image/jpeg;base64,'+shot.thumbnail.toJPEG(78).toString('base64'),controller.signal);
+                else {
                 const response = await fetch('http://127.0.0.1:17882/observe', {
                     method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Kei-Bridge': fs.readFileSync('D:/KeiRuntime/data/desktop-bridge.token', 'utf8').trim() },
                     body: JSON.stringify({ image: 'data:image/jpeg;base64,' + shot.thumbnail.toJPEG(78).toString('base64') }), signal: controller.signal,
                 });
                 if (!response.ok) throw new Error(`Vision HTTP ${response.status}`);
                 result = await response.json();
+                }
             } finally { clearTimeout(timeout); }
             if (!enabled || epoch !== generation) return;
             if (typeof result.text !== 'string' || !result.text.trim()) throw new Error('Empty vision response');

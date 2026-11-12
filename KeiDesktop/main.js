@@ -3,10 +3,13 @@ const path = require("path");
 const KEI_ICON = path.join(__dirname, "assets", "branding", process.platform === "win32" ? "kei-logo.ico" : "kei-logo.png");
 const { randomUUID } = require("crypto");
 
+let local;
+const independent=process.env.KEI_DESKTOP_MODE==='independent';
 let mainWindow;
 let adminWindow;
 
 function openAdmin() {
+    if(local)return local.settings();
     if (adminWindow && !adminWindow.isDestroyed()) {
         adminWindow.show();
         adminWindow.focus();
@@ -72,6 +75,7 @@ let closeTimer;
 let loginRequested = false;
 
 async function publishRuntimeEvent(event) {
+    if(local)return local.publish(event);
     const response = await fetch("http://127.0.0.1:17881/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -98,6 +102,7 @@ function createWindow() {
         backgroundColor: "#00000000",
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),
+            additionalArguments: independent ? ["--kei-independent"] : [],
             contextIsolation: true,
             nodeIntegration: false,
             autoplayPolicy: "no-user-gesture-required",
@@ -145,7 +150,7 @@ ipcMain.handle("kei:login", async (event) => {
 // session. The reply comes back over the desktop WebSocket like a voice turn.
 // Dropped files are copied into the executor workspace first (attachments.js),
 // then named in the same message.
-const EXECUTOR_WORKSPACE = "D:/KeiRuntime/data/executor-workspace";
+const EXECUTOR_WORKSPACE = independent ? path.join(app.getPath("userData"),"executor-workspace") : "D:/KeiRuntime/data/executor-workspace";
 ipcMain.handle("kei:chat-send", async (event, message, filePaths = []) => {
     if (event.sender !== mainWindow?.webContents || closing) throw new Error("Invalid sender");
     const typed = typeof message === "string" ? message.trim() : "";
@@ -182,6 +187,7 @@ ipcMain.handle("kei:say", async (event, key) => {
 // existing /executors route, without opening the admin window.
 let companion;
 async function executorState(body) {
+    if(local)return {backend:'dsh',codexAvailable:false,activeTask:''};
     const token = require("fs").readFileSync(process.env.KEI_BRIDGE_TOKEN_FILE || "D:/KeiRuntime/data/desktop-bridge.token", "utf8").trim();
     const response = await fetch("http://127.0.0.1:17881/executors", {
         method: body ? "POST" : "GET",
@@ -381,6 +387,10 @@ ipcMain.handle("kei:history", async (event, action, data) => {
             const item = fresh ? null : conversationStore.read(String(data));
             if (!fresh && !item) throw new Error("Unknown conversation");
             const turns = [...new Set((item?.entries || []).map(e => e.turn).filter(Boolean))].slice(-512);
+            if(local){
+                local.reset((item?.entries || []).map(e=>({role:e.role==='kei'?'assistant':'user',content:e.ja||e.text})).filter(e=>e.content));
+                conversationStore.select(item?.id||null);return true;
+            }
             const token = require("fs").readFileSync("D:/KeiRuntime/data/desktop-bridge.token","utf8").trim();
             const response = await fetch("http://127.0.0.1:17881/desktop/thread", {
                 method: "POST", headers: {"Content-Type":"application/json","X-Kei-Bridge":token},
@@ -426,12 +436,14 @@ if (!app.requestSingleInstanceLock()) {
         if (mainWindow?.isMinimized()) mainWindow.restore();
         mainWindow?.focus();
     });
-    app.whenReady().then(() => {
+    app.whenReady().then(async () => {
+        if(independent)local=await require('./standalone/main')(()=>mainWindow);
         // The admin window opens from the toolbar (管理), or by itself when a
         // shortcut or voice-key problem needs attention; not on every launch.
         createWindow();
         companion = require('./companion')({
             ipcMain, getAdmin: () => adminWindow, openAdmin, publish: publishRuntimeEvent,
+            observeImage:local?.observe, cacheFile:local ? path.join(app.getPath('userData'),'observation.json') : undefined,
             // Ctrl + Alt + Q: bring the main window forward and hand it the selection.
             onSelection: (state) => {
                 if (!mainWindow || mainWindow.isDestroyed() || closing) return openAdmin();
@@ -450,8 +462,9 @@ if (!app.requestSingleInstanceLock()) {
             if (leaving) leaveCompact();
             mainWindow.webContents.send("kei:compact-toggle", !leaving);
         });
+        if(local){globalShortcut.register('F8',()=>mainWindow?.webContents.send('kei:local-microphone'));return;}
         const stopVoice = require('./voice-controls')({ipcMain, getAdmin: () => adminWindow, openAdmin});
         app.on('before-quit', stopVoice);
-    });
+    }).catch(error=>{require('electron').dialog.showErrorBox('Kei Desktop',error.message);app.exit(1);});
     app.on("window-all-closed", () => app.quit());
 }

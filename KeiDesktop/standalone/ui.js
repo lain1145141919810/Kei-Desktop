@@ -45,3 +45,13 @@ document.querySelector('form').onsubmit=async event=>{
         if(action==='chat'){history=[...history,{role:'user',content:text},{role:'assistant',content:answer}].slice(-32);if(state.voice)await speak(answer);}
     }catch(error){log(error.message,'error');}finally{el('send').disabled=false;field.focus();}
 };
+
+function showNotes(rows){
+    const container=el('notes');container.replaceChildren();
+    for(const row of rows){const p=document.createElement('p'), button=document.createElement('button');
+        p.textContent=row.text+' ';button.textContent='删除';button.onclick=async()=>showNotes(await window.kei.forget(row.id));p.append(button);container.append(p);}
+}
+el('memory').onclick=async()=>{showNotes(await window.kei.memories());el('memory-panel').showModal();};
+el('close-memory').onclick=()=>el('memory-panel').close();
+el('save-note').onclick=async()=>{try{showNotes(await window.kei.remember(el('note').value));el('note').value='';}catch(e){alert(e.message);}};
+el('import-memory').onclick=async()=>{if(confirm('将所选个人数据库中全部有效记忆导入此桌面，并用于以后的对话？')){try{showNotes(await window.kei.importMemory());}catch(e){alert(e.message);}}};

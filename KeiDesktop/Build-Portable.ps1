@@ -9,13 +9,16 @@ New-Item -ItemType Directory $dest -Force | Out-Null
 try {
     Copy-Item "$ElectronDist/*" $bundle -Recurse -Force
     Rename-Item "$bundle/electron.exe" 'Kei Desktop.exe'
-    Copy-Item "$PSScriptRoot/standalone" $dest -Recurse
-    '{"name":"kei-desktop","productName":"Kei Desktop","version":"0.2.0","main":"standalone/main.js"}' | Set-Content "$dest/package.json" -Encoding ascii
-    foreach ($name in @('branding/kei-logo.png','character/CH0335_home_Idle_01.webm','lifecycle/startup.mp4','lifecycle/shutdown.mp4')) {
-        $target = Join-Path "$dest/assets" $name
-        New-Item -ItemType Directory (Split-Path $target) -Force | Out-Null
-        Copy-Item "$PSScriptRoot/assets/$name" $target
+    foreach($name in @('standalone','renderer','assets','entry.js','main.js','preload.js','companion.js','reading-plans.js','conversation-store.js','attachments.js','read-selection.ps1')){
+        Copy-Item "$PSScriptRoot/$name" $dest -Recurse
     }
+    foreach($name in @('live2d-official/public','vendor/cubism/Core')){
+        $target=Join-Path $dest $name
+        New-Item -ItemType Directory (Split-Path $target) -Force | Out-Null
+        Copy-Item "$PSScriptRoot/$name" $target -Recurse
+    }
+    Copy-Item "$PSScriptRoot/vendor/cubism/Framework/LICENSE.md" "$bundle/Cubism-Framework-LICENSE.md"
+    '{"name":"kei-desktop","productName":"Kei Desktop","version":"0.3.0","main":"entry.js"}' | Set-Content "$dest/package.json" -Encoding ascii
     Copy-Item "$PSScriptRoot/../THIRD_PARTY_NOTICES.md","$PSScriptRoot/../docs/STANDALONE.zh.md" $bundle
     Copy-Item "$PSScriptRoot/../LICENSE" "$bundle/PROJECT-LICENSE"
     New-Item -ItemType Directory $OutputDirectory -Force | Out-Null
