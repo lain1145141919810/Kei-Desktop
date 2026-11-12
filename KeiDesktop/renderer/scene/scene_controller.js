@@ -250,7 +250,7 @@ class SceneController {
         // The UI is Japanese-only. A reply written in Chinese is not excerpted;
         // Kei speaks the answer and the card just confirms completion.
         if (!/[\u3040-\u30ff]/.test(String(text || ""))) {
-            this.ui.summary.textContent = "完了しました。内容はケイのセリフをご覧ください。";
+            this.ui.summary.textContent = `完了しました。内容は${globalThis.KeiName?.() || 'ケイ'}のセリフをご覧ください。`;
             return;
         }
         // Extract result facts; conversational lead-ins belong in the dialogue box.
@@ -272,7 +272,7 @@ class SceneController {
           .slice(0, 3).sort((a, b) => a.index - b.index);
         this.ui.summary.textContent = facts.length
             ? facts.map(({ line }) => `• ${line}`).join("\n")
-            : "完了しました。内容はケイのセリフをご覧ください。";
+            : `完了しました。内容は${globalThis.KeiName?.() || 'ケイ'}のセリフをご覧ください。`;
     }
 
     _setSources() {
@@ -395,7 +395,7 @@ class SceneController {
         this._setSources();
         this._renderWorkProgress();
         this._setWorkUi({
-            title: "ケイが対応しています",
+            title: `${globalThis.KeiName?.() || 'ケイ'}が対応しています`,
             activity: payload.activity || "thinking",
         });
         return true;
@@ -431,7 +431,7 @@ class SceneController {
         this.workState = "working";
         this._applyScene(this.hasToolPresentation ? "cg2" : "cg1");
         this._setWorkUi({
-            title: "ケイが作業しています",
+            title: `${globalThis.KeiName?.() || 'ケイ'}が作業しています`,
             activity: activity || "working",
             toolName: this.activeToolName,
         });
@@ -484,7 +484,7 @@ class SceneController {
         this._setWorkUi({
             title: failed ? "次の手順を試しています"
                 : activity === "searching" && Number.isInteger(payload.result_count)
-                    ? `${payload.result_count} 件の出典が見つかりました` : "ケイが整理しています",
+                    ? `${payload.result_count} 件の出典が見つかりました` : `${globalThis.KeiName?.() || 'ケイ'}が整理しています`,
             activity: "working",
         });
         return true;
@@ -496,7 +496,7 @@ class SceneController {
             if (this.workState === "result") return true;
             const draft = this.pendingResult?.turnId === turnId ? this.pendingResult : null;
             this.pendingResult = { turnId, payload, text: draft?.text || "", summary: draft?.summary || "" };
-            this._setWorkUi({ title: "ケイが整理しています", activity: "working" });
+            this._setWorkUi({ title: `${globalThis.KeiName?.() || 'ケイ'}が整理しています`, activity: "working" });
             return true;
         }
 

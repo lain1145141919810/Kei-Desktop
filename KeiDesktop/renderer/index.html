@@ -18,6 +18,7 @@
     >
     <link rel="stylesheet" href="./theme.css">
     <link rel="stylesheet" href="./shell.css">
+    <link rel="stylesheet" href="./profile.css">
 </head>
 
 
@@ -389,6 +390,7 @@
     <div id="compact-zone">
         <div id="compact-surface" title="ドラッグで移動 · ダブルクリックで元の画面に戻る"></div>
         <div id="compact-controls" class="ui-panel">
+            <span id="compact-character-name" hidden></span>
             <i id="compact-observe" title="画面観察中"></i>
             <button id="compact-talk" type="button" aria-pressed="false" aria-label="ケイに話しかける" title="ケイに話しかける">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5h14v10H10l-5 4z" /></svg>
@@ -488,6 +490,7 @@
     <script src="./shell/overview_model.js"></script>
     <script src="./shell/overview_ui.js"></script>
     <script src="./reading/reading_ui.js"></script>
+    <script src="./profile.js"></script>
     <script src="./app.js"></script>
     <script src="./independent.js"></script>
 </body>

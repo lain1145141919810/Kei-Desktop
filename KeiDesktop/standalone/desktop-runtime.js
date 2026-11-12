@@ -2,6 +2,8 @@ const { app, ipcMain, session } = require('electron');
 const fs=require('node:fs');
 const path=require('node:path');
 const http=require('node:http');
+const {pathToFileURL}=require('node:url');
+const {characterInstruction}=require('./service');
 const {execFile}=require('node:child_process');
 const {promisify}=require('node:util');
 const {randomUUID}=require('node:crypto');
@@ -59,7 +61,7 @@ module.exports=async function desktopRuntime({getWindow,service,config,media,set
     function handle(name,fn){ipcMain.handle('kei:local-'+name, (e,...args)=>{
         if(e.sender!==getWindow()?.webContents)throw Error('呼び出し元を確認できません');return fn(...args);
     });}
-    handle('media',()=>({portrait:config.media.portrait?media().portrait:null,opening:media().opening,ending:media().ending}));
+    handle('media',()=>({portrait:config.media.portrait?media().portrait:null,opening:media().opening,ending:media().ending,startupSound:config.character.startupSound && fs.existsSync(config.character.startupSound)?pathToFileURL(config.character.startupSound).href:''}));
     handle('audio-event',(type,base)=>{if(['tts.start','tts.end'].includes(type))emit(type,base,{payload:{status:'completed',segment_final:true}});});
     handle('mic',async bytes=>{
         if(!(bytes instanceof Uint8Array)||!bytes.length||bytes.length>16e6)throw Error('録音が空か、長すぎます');
@@ -76,7 +78,7 @@ module.exports=async function desktopRuntime({getWindow,service,config,media,set
         const v=config.vision.url?config.vision:config.chat;
         if(!v.url||!v.model)throw Error('画像入力に対応した vision.url と vision.model を設定してください');
         const response=await fetch(v.url,{method:'POST',signal,headers:{'Content-Type':'application/json',...(v.key&&{Authorization:'Bearer '+v.key})},
-            body:JSON.stringify({model:v.model,messages:[{role:'user',content:[{type:'text',text:'画面上で確認できる内容だけを、日本語で簡潔に説明してください。'},{type:'image_url',image_url:{url:image}}]}]})});
+            body:JSON.stringify({model:v.model,messages:[{role:'system',content:characterInstruction(config)},{role:'user',content:[{type:'text',text:'画面上で確認できる内容だけを、日本語で簡潔に説明してください。'},{type:'image_url',image_url:{url:image}}]}]})});
         if(!response.ok)throw Error('画像認識サービスの応答：HTTP '+response.status);
         return {text:(await response.json()).choices?.[0]?.message?.content};
     }

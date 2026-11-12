@@ -155,7 +155,7 @@
         } catch (error) {
             // Keep the draft: nothing reached the runtime.
             const reason = String(error.message || error).replace(/^Error invoking remote method '[^']+': (Error: )?/, '');
-            setStatus(connected ? `送信できませんでした：${reason}` : 'ケイのランタイムに接続できていません。少し待ってからもう一度どうぞ', 'error');
+            setStatus(connected ? `送信できませんでした：${reason}` : `${globalThis.KeiName?.() || 'ケイ'}のランタイムに接続できていません。少し待ってからもう一度どうぞ`, 'error');
         } finally {
             sending = false;
             refreshComposer();
@@ -200,7 +200,7 @@
         const item = node('article', `log-entry log-${entry.role}`);
         item.dataset.entryId = entry.id;
         const meta = node('div', 'log-meta');
-        meta.append(node('span', 'log-name', entry.role === 'kei' ? 'ケイ' : 'あなた'));
+        meta.append(node('span', 'log-name', entry.role === 'kei' ? `${globalThis.KeiName?.() || 'ケイ'}` : 'あなた'));
         const notes = [clock(entry.ts)];
         if (entry.source === 'voice') notes.push('音声');
         if (entry.status === 'interrupted') notes.push('中断');
@@ -270,7 +270,7 @@
         title.textContent = conversation
             ? `${day(conversation.started)} ${clock(conversation.started)}${conversation.current ? ' · 進行中' : ''}`
             : '今の会話';
-        if (!conversation) return empty('まだ会話がありません。ケイに話しかけるか、入力してみてください。');
+        if (!conversation) return empty(`まだ会話がありません。${globalThis.KeiName?.() || 'ケイ'}に話しかけるか、入力してみてください。`);
         body.replaceChildren(...conversation.entries.map(entryNode));
         body.scrollTop = body.scrollHeight;
     }
@@ -375,7 +375,7 @@
         setConnected(value) {
             connected = Boolean(value);
             document.body.dataset.connection = connected ? 'online' : 'offline';
-            input.placeholder = connected ? 'ケイに話しかける…（Enter で送信、Shift+Enter で改行）' : 'ケイのランタイムに接続中…';
+            input.placeholder = connected ? `${globalThis.KeiName?.() || 'ケイ'}に話しかける…（Enter で送信、Shift+Enter で改行）` : `${globalThis.KeiName?.() || 'ケイ'}のランタイムに接続中…`;
             if (!connected) model.disconnected();
             else if (composerStatus.dataset.tone === 'error') setStatus('');
         },

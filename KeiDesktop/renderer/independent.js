@@ -43,14 +43,21 @@ if(window.keiLocal){
         await audio.play().catch(finish);
     });
     bridge.events(event=>{if(event.type==='interrupt')audio?.pause();});
-    bridge.media().then(({portrait})=>{
-        if(!portrait)return;
+    async function updatePortrait(){
+        const {portrait}=await bridge.media();
         const stage=document.getElementById('character-layer');
+        stage.querySelector('[data-custom-portrait]')?.remove();
+        for(const child of stage.children){
+            if(portrait)child.style.setProperty('visibility','hidden','important');
+            else child.style.removeProperty('visibility');
+        }
+        if(!portrait)return;
         const item=document.createElement(portrait.video?'video':'img');
-        item.src=portrait.src;
+        item.dataset.customPortrait='1';item.src=portrait.src;
         if(portrait.video){item.loop=true;item.muted=true;item.autoplay=true;}
-        for(const child of stage.children)child.style.setProperty('visibility','hidden','important');
         item.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:contain';
         stage.append(item);
-    });
+    }
+    window.addEventListener('kei-profile-change',updatePortrait);
+    updatePortrait();
 }

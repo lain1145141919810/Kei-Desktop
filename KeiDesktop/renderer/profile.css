@@ -1,0 +1,11 @@
+#character-profile{width:min(440px,90vw);max-height:88vh;overflow:auto;border:1px solid #706478;border-radius:14px;padding:20px;background:#24232c;color:#fff;pointer-events:auto;-webkit-app-region:no-drag;font:14px/1.45 "Yu Gothic UI",sans-serif}
+#character-profile::backdrop{background:#16121bb8}
+#character-profile form,#character-profile label{display:grid;gap:7px}
+#character-profile h2,#character-profile p{margin:0}
+#character-profile input,#character-profile textarea{box-sizing:border-box;width:100%;padding:7px;color:inherit;background:#33313c;border:1px solid #706478;border-radius:5px}
+#character-profile button{font:inherit;color:inherit;background:#494452;border:0;border-radius:5px;padding:4px 9px;cursor:pointer}
+.profile-files>div,.profile-pack,#character-profile footer{display:flex;align-items:center;gap:6px;margin:4px 0}
+.profile-files span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#character-profile footer{justify-content:flex-end}
+#compact-character-name{color:inherit;white-space:nowrap;max-width:9em;overflow:hidden;text-overflow:ellipsis}
+

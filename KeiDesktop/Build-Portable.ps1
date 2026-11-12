@@ -18,7 +18,7 @@ try {
         Copy-Item "$PSScriptRoot/$name" $target -Recurse
     }
     Copy-Item "$PSScriptRoot/vendor/cubism/Framework/LICENSE.md" "$bundle/Cubism-Framework-LICENSE.md"
-    '{"name":"kei-desktop","productName":"Kei Desktop","version":"0.3.0","main":"entry.js"}' | Set-Content "$dest/package.json" -Encoding ascii
+    '{"name":"kei-desktop","productName":"Kei Desktop","version":"0.3.1","main":"entry.js"}' | Set-Content "$dest/package.json" -Encoding ascii
     Copy-Item "$PSScriptRoot/../THIRD_PARTY_NOTICES.md","$PSScriptRoot/../docs/STANDALONE.ja.md" $bundle
     Copy-Item "$PSScriptRoot/../LICENSE" "$bundle/PROJECT-LICENSE"
     New-Item -ItemType Directory $OutputDirectory -Force | Out-Null

@@ -64,8 +64,15 @@ class DesktopLifecycleController {
     async start() {
         // Use media time so stalls or pauses cannot make the announcement early.
         // Loading needs no Runtime connection, model inference or network request.
+        const custom=window.keiLocal ? (await window.keiLocal.media()).startupSound : '';
+        if(custom && this.loadingVoice){
+            this.loadingVoice.src=custom;
+            this.loadingVoice.play().catch(()=>{});
+            await this.playVideo("../assets/lifecycle/startup.mp4",8500);
+        }
         const loadingVoice = new Promise((resolve) => {
             let timer;
+            if(custom)return resolve();
             let voiceStarted = false;
             const audio = this.loadingVoice;
             const finish = () => {
@@ -94,11 +101,11 @@ class DesktopLifecycleController {
             this.video.addEventListener("timeupdate", play);
             timer = setTimeout(finish, 8000);
         });
-        await this.playVideo("../assets/lifecycle/startup.mp4", 8500);
+        if(!custom)await this.playVideo("../assets/lifecycle/startup.mp4", 8500);
         // Also settles when the startup video is unavailable, without trapping startup.
         if (this.loadingVoice?.paused) this.loadingVoiceFinish?.();
         await loadingVoice;
-        this.loadingVoice?.pause();
+        if(!custom)this.loadingVoice?.pause();
         if (this.phase !== "opening") return;
         this.phase = "ready";
         console.info("[Kei Lifecycle] Startup animation completed");

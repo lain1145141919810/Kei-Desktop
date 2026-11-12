@@ -8,6 +8,7 @@ const {createService} = require('./service');
 let window, service, config, file;
 const assets = path.join(__dirname,'../assets');
 const defaults = {
+    character:{name:'ケイ',persona:'',startupSound:'',configured:false},
     chat:{provider:'compatible',url:'http://127.0.0.1:11434/v1/chat/completions',model:'',key:''},
     astrbot:{url:'http://127.0.0.1:6185/api/v1/chat',key:''},
     dsh:{url:'',token:'',entry:'',workspace:''},
@@ -33,6 +34,7 @@ module.exports=async function setup(getWindow){
     config=Object.fromEntries(Object.entries(defaults).map(([k,v])=>[k,{...v,...saved[k]}]));
     config.speech.language='ja';
     save();
+    require('./profile-settings')(getWindow,config,save);
     service=createService(config);
     await new Promise((resolve,reject)=>service.server.once('error',reject).listen(config.api.port,'127.0.0.1',resolve));
     nativeTheme.themeSource='dark';
@@ -49,7 +51,7 @@ module.exports=async function setup(getWindow){
         if(e.senderFrame!==window?.webContents.mainFrame) throw new Error('呼び出し元を確認できません');
         return fn(...args);
     });
-    handle('state',()=>({media:media(),voice:config.speech.enabled,provider:config.chat.provider}));
+    handle('state',()=>({media:media(),voice:config.speech.enabled,provider:config.chat.provider,characterName:config.character.name}));
     handle('run',(action,body)=>service.run(action,body));
     handle('settings',()=>shell.openPath(file));
     handle('media',async key=>{

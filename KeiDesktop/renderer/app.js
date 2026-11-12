@@ -1069,6 +1069,7 @@ function scheduleReconnect() {
 
 async function start() {
 
+    if(window.KeiProfileReady)await window.KeiProfileReady;
     lifecycle.start();
 
     setConnectionState(

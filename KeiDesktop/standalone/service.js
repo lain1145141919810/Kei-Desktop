@@ -1,4 +1,7 @@
-const japanese = 'ケイとして自然な日本語で回答してください。コード、固有名詞、引用は原文を保ってください。';
+function characterInstruction(config){
+    const {name='ケイ',persona=''}=config.character||{};
+    return [name+'として自然な日本語で回答してください。コード、固有名詞、引用は原文を保ってください。',persona].filter(Boolean).join('\n');
+}
 const http = require('node:http');
 const { createHash, randomUUID } = require('node:crypto');
 
@@ -15,6 +18,7 @@ async function post(url, body, key, headers = {}) {
 function createService(config) {
     async function run(action, body) {
         if (!['chat','task','speech'].includes(action)) throw new Error('この操作には対応していません');
+        const japanese=characterInstruction(config);
         const text = body?.text;
         if (typeof text !== 'string' || !text.trim() || text.length > 16000) throw new Error('1～16000文字で入力してください');
         const session = body.session ?? 'default';
@@ -32,14 +36,14 @@ function createService(config) {
                 const {execFile} = require('node:child_process');
                 const execute = require('node:util').promisify(execFile);
                 if (!config.dsh.workspace) throw new Error('DSH の作業フォルダーを設定してください');
-                const result = await execute('node', [config.dsh.entry,'headless','最終報告は日本語でお願いします。タスク：' + text], {
+                const result = await execute('node', [config.dsh.entry,'headless',japanese+'\n最終報告は日本語でお願いします。タスク：' + text], {
                     cwd:config.dsh.workspace, timeout:180000, windowsHide:true, maxBuffer:4*1024*1024
                 }).catch(error=>{throw new Error('DSH タスクに失敗しました：' + (error.code ?? '起動エラー'));});
                 return {result:result.stdout.trim()};
             }
             if (!config.dsh.url) throw new Error('DSH の接続先を設定してください');
             const scope = 'astrbot-' + createHash('sha256').update(session).digest('hex');
-            return (await post(config.dsh.url, {request:'最終報告は日本語でお願いします。タスク：'+text, scope, task_id:randomUUID().replaceAll('-','')}, null,
+            return (await post(config.dsh.url, {request:japanese+'\n最終報告は日本語でお願いします。タスク：'+text, scope, task_id:randomUUID().replaceAll('-','')}, null,
                 {'X-Kei-Bridge': config.dsh.token})).json();
         }
         if (config.chat.provider === 'astrbot') {
@@ -89,4 +93,4 @@ function createService(config) {
     });
     return {run,server};
 }
-module.exports = {createService};
+module.exports = {createService,characterInstruction};

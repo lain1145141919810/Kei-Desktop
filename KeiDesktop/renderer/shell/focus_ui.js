@@ -92,7 +92,7 @@
     async function delegate(task, control) {
         if (!bridge?.sendChat) { taskStatus.textContent = 'Kei Desktop のウィンドウ内でのみ依頼できます'; return; }
         control.disabled = true;
-        taskStatus.textContent = 'ケイに依頼しています…';
+        taskStatus.textContent = `${globalThis.KeiName?.() || 'ケイ'}に依頼しています…`;
         try {
             const text = `次のタスクをお願いします：${task.text}`;
             const { turnId } = await bridge.sendChat(text, []);
@@ -131,7 +131,7 @@
         if (!task.done) {
             const hand = node('button', 'task-hand', task.delegated ? '依頼済み' : '任せる');
             hand.type = 'button';
-            hand.title = 'このタスクをケイ（実行エージェント）に依頼する';
+            hand.title = `このタスクを${globalThis.KeiName?.() || 'ケイ'}（実行エージェント）に依頼する`;
             hand.addEventListener('click', () => delegate(task, hand));
             row.append(hand);
         }

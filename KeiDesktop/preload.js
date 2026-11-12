@@ -27,6 +27,7 @@ contextBridge.exposeInMainWorld("keiDesktop", {
 });
 
 if(process.argv.includes('--kei-independent'))contextBridge.exposeInMainWorld('keiLocal',{
+    profile:(action,value)=>ipcRenderer.invoke('kei:profile-'+action,value),
     events:fn=>ipcRenderer.on('kei:local-event',(_,event)=>fn(event)),
     media:()=>ipcRenderer.invoke('kei:local-media'),
     mic:bytes=>ipcRenderer.invoke('kei:local-mic',bytes),

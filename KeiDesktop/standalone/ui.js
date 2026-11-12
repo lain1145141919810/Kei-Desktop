@@ -30,7 +30,7 @@ async function speak(text){
     try{await activeAudio.play();}catch(error){release();throw error;}
 }
 window.kei.onClose(async()=>{closing=true;activeAudio?.pause();try{if(state)await scene(state.media.ending,4500);}finally{window.kei.closed();}});
-window.kei.state().then(value=>{state=value;visual(el('portrait'),state.media.portrait,true);if(!closing)scene(state.media.opening,8000);});
+window.kei.state().then(value=>{state=value;document.getElementById("note").placeholder=value.characterName+"に覚えてほしいこと";visual(el('portrait'),state.media.portrait,true);if(!closing)scene(state.media.opening,8000);});
 el('settings').onclick=async()=>{const error=await window.kei.settings();log(error?'設定ファイルを開けませんでした。':'設定を保存してから Kei Desktop を再起動してください。','info');};
 for(const button of document.querySelectorAll('[data-media]'))button.onclick=async()=>{state.media=await window.kei.media(button.dataset.media);visual(el('portrait'),state.media.portrait,true);};
 document.querySelector('form').onsubmit=async event=>{

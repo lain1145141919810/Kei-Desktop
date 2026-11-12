@@ -6,7 +6,7 @@
 
 Windows 用の Live2D デスクトップアシスタント。ケイと日本語で話し、資料を読み、作業を依頼できます。
 
-[Windows x64 版のダウンロード](https://github.com/lain1145141919810/Kei-Desktop/releases/tag/v0.3.0) · [日本語設定ガイド](docs/STANDALONE.ja.md)
+[Windows x64 版のダウンロード](https://github.com/lain1145141919810/Kei-Desktop/releases/tag/v0.3.1) · [日本語設定ガイド](docs/STANDALONE.ja.md)
 
 </div>
 
@@ -14,7 +14,7 @@ Windows 用の Live2D デスクトップアシスタント。ケイと日本語�
 
 ## はじめに
 
-ZIP を展開し、Kei Desktop.exe を起動します。「操作」から管理ウィンドウを開き、会話用モデルを設定してください。Live2D は同梱されています。音声認識、読み上げ、AstrBot、DSH は必要に応じて追加できます。
+ZIP を展開し、Kei Desktop.exe を起動します。初回の「キャラクター設定」で名前、人格、立ち絵、起動音を設定するか、配布されたキャラクターパックを読み込めます。「操作」から管理ウィンドウを開き、会話用モデルを設定してください。Live2D は同梱されています。音声認識、読み上げ、AstrBot、DSH は必要に応じて追加できます。
 
 | 機能 | 使い方 |
 |---|---|
