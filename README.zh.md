@@ -8,13 +8,13 @@
 
 Windows 桌面上的 Live2D AI 助手
 
-[功能](#功能) · [实机展示](#实机展示) · [部署与迁移](docs/MIGRATION.zh.md) · [模型配置](KeiRuntime/data/DSH-MODELS.zh.md)
+[功能](#功能) · [实机展示](#实机展示) · [中文安装指南](docs/STANDALONE.zh.md) · [模型配置](KeiRuntime/data/DSH-MODELS.zh.md)
 
 </div>
 
 ## Windows 独立版
 
-[下载 Windows x64 独立版](https://github.com/lain1145141919810/Kei-Desktop/releases/tag/v0.3.2) · [接口、语音权重与素材配置](docs/STANDALONE.zh.md)
+[下载 Windows x64 独立版](https://github.com/lain1145141919810/Kei-Desktop/releases/tag/v0.3.2) · [中文安装与配置指南](docs/STANDALONE.zh.md) · [中文 AI 安装提示词](KeiDesktop/standalone/AI-INSTALL.zh.txt)
 
 解压后运行 Kei Desktop.exe。可直接连接模型 API，按需接入 AstrBot、DSH 和 GPT-SoVITS。独立版沿用原桌面，支持 Live2D、语音输入、本地长期记忆、PDF 选段问答和屏幕观察。
 
@@ -52,17 +52,13 @@ Windows 桌面上的 Live2D AI 助手
 
 ## 开始使用
 
-准备 Windows、Python 3.11、Node.js 24 和 Git，克隆项目。
+1. 从上面的发布页下载并完整解压 Windows ZIP，运行 Kei Desktop.exe。
+2. 在首次「キャラクター設定」中设置名字、人格、立绘和开机音效，也可导入别人配布的角色包。
+3. 通过「操作 → 管理ウィンドウを開く → 設定 → 接続設定を開く」填写模型地址、模型名和必要的密钥，保存并重启。
+4. 需要朗读时，在「設定 → 音声読み上げ設定」选择 GPT-SoVITS 或自己的外部 TTS API。外部服务需直接返回音频二进制。
+5. 需要 AI 代为安装时，复制上面的中文 AI 安装提示词。
 
-    git clone https://github.com/lain1145141919810/Kei-Desktop.git
-    cd Kei-Desktop
-
-按[部署与迁移指南](docs/MIGRATION.zh.md)安装后台、语音依赖和角色运行环境，然后启动。
-
-    cd D:/KeiDesktop
-    ./Start-Kei.ps1
-
-DSH 模型目录支持为不同工作分配不同模型。[查看配置方法](KeiRuntime/data/DSH-MODELS.zh.md)
+软件界面与语音使用日语。角色名、人格和素材的配布方法、麦克风识别、屏幕观察、本地 API 及源码启动步骤见[中文指南](docs/STANDALONE.zh.md)。原 AstrBot 插件链的安装方法见[原版迁移指南](docs/MIGRATION.zh.md)。
 
 ## 项目结构
 

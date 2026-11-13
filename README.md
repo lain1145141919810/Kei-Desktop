@@ -29,6 +29,6 @@ ZIP を展開し、Kei Desktop.exe を起動します。初回の「キャラク
 ![読書パネル](docs/screenshots/pdf-reading.png)
 ![集中タイマー](docs/screenshots/focus-timer.png)
 
-[音声モデル、素材、API の設定](docs/STANDALONE.ja.md) · [従来版の移行手順（中国語）](docs/MIGRATION.zh.md) · [中国語のプロジェクト紹介](README.zh.md)
+[音声モデル、素材、API の設定](docs/STANDALONE.ja.md) · [従来版の移行手順（中国語）](docs/MIGRATION.zh.md) · [中国語のプロジェクト紹介](README.zh.md) · [中文安装指南](docs/STANDALONE.zh.md) · [中文 AI 安装提示词](KeiDesktop/standalone/AI-INSTALL.zh.txt)
 
 開発時は KeiDesktop フォルダーで npm ci、npm start の順に実行します。Windows 配布用 ZIP は Build-Portable.ps1 で生成できます。自作コードのライセンスと素材の出典は [LICENSE](LICENSE) および [第三者素材の表記](THIRD_PARTY_NOTICES.md) を参照してください。

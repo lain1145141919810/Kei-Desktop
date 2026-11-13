@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param([string]$ElectronDist = "$PSScriptRoot/node_modules/electron/dist", [string]$OutputDirectory = "$PSScriptRoot/dist")
 $ErrorActionPreference = 'Stop'
 if (!(Test-Path "$ElectronDist/electron.exe")) { throw 'Install Electron with npm ci or specify -ElectronDist.' }
@@ -20,7 +20,7 @@ try {
     Copy-Item "$PSScriptRoot/vendor/cubism/Framework/LICENSE.md" "$bundle/Cubism-Framework-LICENSE.md"
     '{"name":"kei-desktop","productName":"Kei Desktop","version":"0.3.2","main":"entry.js"}' | Set-Content "$dest/package.json" -Encoding ascii
     Copy-Item "$PSScriptRoot/../THIRD_PARTY_NOTICES.md","$PSScriptRoot/../docs/STANDALONE.ja.md" $bundle
-    Copy-Item "$PSScriptRoot/standalone/AI-INSTALL.ja.txt" $bundle
+    Copy-Item "$PSScriptRoot/standalone/AI-INSTALL.ja.txt","$PSScriptRoot/standalone/AI-INSTALL.zh.txt","$PSScriptRoot/../docs/STANDALONE.zh.md" $bundle
     Copy-Item "$PSScriptRoot/../LICENSE" "$bundle/PROJECT-LICENSE"
     New-Item -ItemType Directory $OutputDirectory -Force | Out-Null
     $zip = Join-Path (Resolve-Path $OutputDirectory) 'Kei-Desktop-Windows-x64.zip'
