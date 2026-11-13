@@ -14,7 +14,7 @@ Windows 桌面上的 Live2D AI 助手
 
 ## Windows 独立版
 
-[下载 Windows x64 独立版](https://github.com/lain1145141919810/Kei-Desktop/releases/tag/v0.3.1) · [接口、语音权重与素材配置](docs/STANDALONE.zh.md)
+[下载 Windows x64 独立版](https://github.com/lain1145141919810/Kei-Desktop/releases/tag/v0.3.2) · [接口、语音权重与素材配置](docs/STANDALONE.zh.md)
 
 解压后运行 Kei Desktop.exe。可直接连接模型 API，按需接入 AstrBot、DSH 和 GPT-SoVITS。独立版沿用原桌面，支持 Live2D、语音输入、本地长期记忆、PDF 选段问答和屏幕观察。
 

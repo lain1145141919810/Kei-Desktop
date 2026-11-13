@@ -24,12 +24,24 @@ function createService(config) {
         const session = body.session ?? 'default';
         if (typeof session !== 'string' || !session.length || session.length > 128) throw new Error('会話 ID が正しくありません');
         if (action === 'speech') {
-            if (!config.speech.enabled) throw new Error('GPT-SoVITS を有効にし、参照音声を設定してください');
             const v = config.speech;
-            const response = await post(v.url, { text, text_lang: v.language, prompt_lang: v.referenceLanguage,
-                prompt_text: v.referenceText, ref_audio_path: v.referencePath, media_type: 'wav', streaming_mode: false }, null);
-            if (!/audio\//i.test(response.headers.get('content-type') || '')) throw new Error('音声サービスから音声が返りませんでした');
-            return Buffer.from(await response.arrayBuffer());
+            if (!v.enabled) throw new Error('設定で音声読み上げを有効にしてください。');
+            const external = v.provider === 'external';
+            let payload;
+            if (external) {
+                payload = {...(v.extra || {}), [v.textField || 'input']:text};
+                if (v.model) payload.model = v.model;
+                if (v.voice) payload.voice = v.voice;
+            } else {
+                payload = {text, text_lang:v.language, prompt_lang:v.referenceLanguage,
+                    prompt_text:v.referenceText, ref_audio_path:v.referencePath, media_type:'wav', streaming_mode:false};
+            }
+            const response = await post(external ? v.externalUrl : v.url, payload, external ? v.externalKey : null);
+            const contentType = (response.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
+            if (!contentType.startsWith('audio/')) throw new Error('音声サービスから音声データが返りませんでした。');
+            const bytes = Buffer.from(await response.arrayBuffer());
+            if (!bytes.length) throw new Error('受信した音声データが空です。');
+            return {bytes,contentType};
         }
         if (action === 'task') {
             if (config.dsh.entry && !config.dsh.url) {
@@ -87,7 +99,7 @@ function createService(config) {
             let body;
             try { body = JSON.parse(input); } catch { return json(400,{error:'JSON の形式が正しくありません'}); }
             const result = await run(route[1],body);
-            if (Buffer.isBuffer(result)) {res.writeHead(200,{'Content-Type':'audio/wav'});res.end(result);}
+            if (route[1] === 'speech') {res.writeHead(200,{'Content-Type':result.contentType});res.end(result.bytes);}
             else json(200,result);
         } catch (error) { json(400,{error:error.message}); }
     });

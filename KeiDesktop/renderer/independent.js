@@ -34,7 +34,7 @@ if(window.keiLocal){
     if(admin){mic.className=admin.className;admin.insertAdjacentElement('afterend',mic);mic.onclick=microphone;}
     bridge.audio(async data=>{
         if(audio)audio.pause();
-        const url=URL.createObjectURL(new Blob([data.bytes],{type:'audio/wav'}));
+        const url=URL.createObjectURL(new Blob([data.bytes],{type:data.contentType}));
         audio=new Audio(url);
         let done=false;
         const finish=()=>{if(done)return;done=true;URL.revokeObjectURL(url);bridge.audioEvent('tts.end',data.base);};

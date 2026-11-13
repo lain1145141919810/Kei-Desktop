@@ -6,7 +6,7 @@
 
 Windows 用の Live2D デスクトップアシスタント。ケイと日本語で話し、資料を読み、作業を依頼できます。
 
-[Windows x64 版のダウンロード](https://github.com/lain1145141919810/Kei-Desktop/releases/tag/v0.3.1) · [日本語設定ガイド](docs/STANDALONE.ja.md)
+[Windows x64 版のダウンロード](https://github.com/lain1145141919810/Kei-Desktop/releases/tag/v0.3.2) · [日本語設定ガイド](docs/STANDALONE.ja.md) · [AI に渡すインストール指示](KeiDesktop/standalone/AI-INSTALL.ja.txt)
 
 </div>
 

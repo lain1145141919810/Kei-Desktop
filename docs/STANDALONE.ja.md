@@ -1,6 +1,6 @@
 # Kei Desktop 設定ガイド
 
-[Windows x64 版](https://github.com/lain1145141919810/Kei-Desktop/releases/tag/v0.3.1)を展開し、Kei Desktop.exe を起動します。「操作」から管理ウィンドウを開き、「設定 → 接続設定を開く」で standalone.json を編集してください。保存後はアプリを再起動します。
+[Windows x64 版](https://github.com/lain1145141919810/Kei-Desktop/releases/tag/v0.3.2)を展開し、Kei Desktop.exe を起動します。「操作」から管理ウィンドウを開き、「設定 → 接続設定を開く」で standalone.json を編集してください。保存後はアプリを再起動します。
 
 ## 初回のキャラクター設定
 
@@ -31,6 +31,14 @@
 - **PDF 読書** はリーダーで文章を選択して Ctrl+Alt+Q を押します。「読書」パネルへの貼り付け、抜粋への質問、読書計画と進捗の記録にも対応します。
 - **画面観察** は「操作」または Ctrl+Alt+S で切り替えます。有効にするとカーソルのある画面の画像を vision の接続先に送り、日本語の説明を受け取ります。オフにすると撮影を止め、直近の観察キャッシュを消去します。
 
+## 読み上げ方式を選ぶ
+
+管理ウィンドウの「設定 → 音声読み上げ設定」で読み上げを有効にし、GPT-SoVITS または外部 TTS API を選んで保存します。次の読み上げから反映されます。既存の設定は GPT-SoVITS として引き継ぎます。
+
+外部接続は JSON を POST し、音声バイナリを audio/* で返す API に対応します。/v1/audio/speech 互換なら本文キーを input にし、提供元のモデル名・音声 ID・必要な Bearer キーを指定します。text を受け取る独自サービスでは本文キーを text に変更します。速度や形式などの固定値は「追加パラメーター」に JSON で指定できます。JSON 内の Base64 やダウンロード URL を返す形式は非対応です。ローカルの POST /v1/speech も選択中のサービスの音声と Content-Type を返します。
+
+インストールを AI に依頼する場合は[この指示文](../KeiDesktop/standalone/AI-INSTALL.ja.txt)をコピーしてください。ZIP の直下にも同じテキストがあります。アプリ内の「設定 → AI 用インストール指示をコピー」からも取得できます。
+
 ## GPT-SoVITS v3 と学習済み音声
 
 1. [上流の手順](https://github.com/RVC-Boss/GPT-SoVITS/tree/9da7e17efe05041e31d3c3f42c8730ae890397f2)に従って v3 を導入します。[Windows 用配布パッケージ](https://huggingface.co/lj1995/GPT-SoVITS-windows-package/resolve/main/GPT-SoVITS-v3lora-20250228.7z)も利用できます。ソースから導入する場合は RoBERTa、HuBERT、v3 基本モデル、BigVGAN などの[学習済みファイル](https://huggingface.co/lj1995/GPT-SoVITS/tree/main)を配置します。
@@ -50,7 +58,7 @@
 | GET /health | 稼働状態を返します。認証は不要です。 |
 | POST /v1/chat | text と任意の session、history を受け取り、text を返します。history は role と content の配列です。 |
 | POST /v1/task | text と任意の session を受け取り、DSH の結果を返します。 |
-| POST /v1/speech | text から日本語の WAV 音声を生成します。 |
+| POST /v1/speech | text を選択中のサービスで読み上げ、その音声形式で返します（GPT-SoVITS は WAV）。 |
 
     $headers = @{Authorization = "Bearer 設定ファイルのトークン"}
     $body = @{text = "こんにちは"; session = "example"} | ConvertTo-Json

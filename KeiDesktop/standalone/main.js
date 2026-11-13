@@ -12,7 +12,7 @@ const defaults = {
     chat:{provider:'compatible',url:'http://127.0.0.1:11434/v1/chat/completions',model:'',key:''},
     astrbot:{url:'http://127.0.0.1:6185/api/v1/chat',key:''},
     dsh:{url:'',token:'',entry:'',workspace:''},
-    speech:{enabled:false,url:'http://127.0.0.1:9880/tts',language:'ja',referenceLanguage:'ja',referenceText:'',referencePath:''},
+    speech:{enabled:false,provider:'gpt-sovits',externalUrl:'',externalKey:'',textField:'input',model:'',voice:'',extra:{},url:'http://127.0.0.1:9880/tts',language:'ja',referenceLanguage:'ja',referenceText:'',referencePath:''},
     asr:{python:'python',model:'small'},vision:{url:'',model:'',key:''},
     media:{portrait:'',opening:'',ending:''},api:{port:17883,token:randomBytes(32).toString('hex')}
 };
@@ -53,6 +53,30 @@ module.exports=async function setup(getWindow){
     });
     handle('state',()=>({media:media(),voice:config.speech.enabled,provider:config.chat.provider,characterName:config.character.name}));
     handle('run',(action,body)=>service.run(action,body));
+    handle('voice-config',()=>({...config.speech,externalKey:undefined,hasKey:Boolean(config.speech.externalKey)}));
+    handle('save-voice',value=>{
+        if(!['gpt-sovits','external'].includes(value.provider))throw Error('読み上げ方式を選択してください。');
+        const next={...config.speech};
+        for(const field of ['url','referenceLanguage','referenceText','referencePath','externalUrl','textField','model','voice'])
+            next[field]=String(value[field]??'').trim();
+        next.provider=value.provider;next.enabled=Boolean(value.enabled);
+        if(value.clearKey)next.externalKey='';
+        else if(value.externalKey)next.externalKey=String(value.externalKey);
+        next.extra=JSON.parse(value.extra||'{}');
+        if(!next.extra||Array.isArray(next.extra)||typeof next.extra!=='object')throw Error('追加パラメーターは JSON オブジェクトで指定してください。');
+        if(next.enabled){
+            const address=new URL(next.provider==='external'?next.externalUrl:next.url);
+            if(!['http:','https:'].includes(address.protocol))throw Error('HTTP または HTTPS の URL を入力してください。');
+        }
+        if(next.provider==='external'&&!next.textField)throw Error('本文フィールド名を入力してください。');
+        const old=config.speech;config.speech=next;
+        try{save();}catch(error){config.speech=old;throw error;}
+        return next.enabled;
+    });
+    handle('copy-install',()=>{
+        const prompt=fs.readFileSync(path.join(__dirname,'AI-INSTALL.ja.txt'),'utf8');
+        require('electron').clipboard.writeText(prompt);
+    });
     handle('settings',()=>shell.openPath(file));
     handle('media',async key=>{
         if(!Object.hasOwn(defaults.media,key)) throw new Error('未対応のメディアです');

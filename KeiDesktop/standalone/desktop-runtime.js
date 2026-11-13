@@ -29,8 +29,8 @@ module.exports=async function desktopRuntime({getWindow,service,config,media,set
     const emit=(type,base,extra={})=>getWindow()?.webContents.send('kei:local-event',{...base,type,...extra});
     async function voice(text,base,epoch){
         if(!config.speech.enabled)return;
-        const bytes=await service.run('speech',{text});
-        if(epoch===generation)getWindow()?.webContents.send('kei:local-audio',{bytes,base,text});
+        const audio=await service.run('speech',{text});
+        if(epoch===generation)getWindow()?.webContents.send('kei:local-audio',{...audio,base,text});
     }
     async function turn(event,epoch){
         if(epoch!==generation)return;
