@@ -1,0 +1,889 @@
+{
+  "schema": "lumenact.curves.v1",
+  "fps": 30.0,
+  "channel_count": 166,
+  "channels": [
+    {
+      "index": 0,
+      "kind": "blendshape",
+      "property": "blendShape.----------LIPSYNC&ETC----------"
+    },
+    {
+      "index": 1,
+      "kind": "blendshape",
+      "property": "blendShape.vrc.v_sil"
+    },
+    {
+      "index": 2,
+      "kind": "blendshape",
+      "property": "blendShape.vrc.v_pp"
+    },
+    {
+      "index": 3,
+      "kind": "blendshape",
+      "property": "blendShape.vrc.v_aa"
+    },
+    {
+      "index": 4,
+      "kind": "blendshape",
+      "property": "blendShape.vrc.v_oh"
+    },
+    {
+      "index": 5,
+      "kind": "blendshape",
+      "property": "blendShape.vrc.v_ou"
+    },
+    {
+      "index": 6,
+      "kind": "blendshape",
+      "property": "blendShape.vrc.v_ih"
+    },
+    {
+      "index": 7,
+      "kind": "blendshape",
+      "property": "blendShape.vrc.v_th"
+    },
+    {
+      "index": 8,
+      "kind": "blendshape",
+      "property": "blendShape.vrc.v_nn"
+    },
+    {
+      "index": 9,
+      "kind": "blendshape",
+      "property": "blendShape.vrc.v_dd"
+    },
+    {
+      "index": 10,
+      "kind": "blendshape",
+      "property": "blendShape.vrc.v_kk"
+    },
+    {
+      "index": 11,
+      "kind": "blendshape",
+      "property": "blendShape.vrc.v_ff"
+    },
+    {
+      "index": 12,
+      "kind": "blendshape",
+      "property": "blendShape.vrc.v_e"
+    },
+    {
+      "index": 13,
+      "kind": "blendshape",
+      "property": "blendShape.vrc.v_ch"
+    },
+    {
+      "index": 14,
+      "kind": "blendshape",
+      "property": "blendShape.vrc.v_rr"
+    },
+    {
+      "index": 15,
+      "kind": "blendshape",
+      "property": "blendShape.vrc.v_ss"
+    },
+    {
+      "index": 16,
+      "kind": "blendshape",
+      "property": "blendShape.vrc.eye_up"
+    },
+    {
+      "index": 17,
+      "kind": "blendshape",
+      "property": "blendShape.vrc.eye_down"
+    },
+    {
+      "index": 18,
+      "kind": "blendshape",
+      "property": "blendShape.vrc.eye_blink"
+    },
+    {
+      "index": 19,
+      "kind": "blendshape",
+      "property": "blendShape.----------MOUTH----------"
+    },
+    {
+      "index": 20,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_a"
+    },
+    {
+      "index": 21,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_a_2"
+    },
+    {
+      "index": 22,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_i"
+    },
+    {
+      "index": 23,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_u"
+    },
+    {
+      "index": 24,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_e"
+    },
+    {
+      "index": 25,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_o"
+    },
+    {
+      "index": 26,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_w"
+    },
+    {
+      "index": 27,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_smile_1"
+    },
+    {
+      "index": 28,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_smile_2"
+    },
+    {
+      "index": 29,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_angry_1"
+    },
+    {
+      "index": 30,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_angry_2"
+    },
+    {
+      "index": 31,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_M"
+    },
+    {
+      "index": 32,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_panic"
+    },
+    {
+      "index": 33,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_wa"
+    },
+    {
+      "index": 34,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_wa_teeth"
+    },
+    {
+      "index": 35,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_dog"
+    },
+    {
+      "index": 36,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_teeth_yaeba"
+    },
+    {
+      "index": 37,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_kiss"
+    },
+    {
+      "index": 38,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_circle"
+    },
+    {
+      "index": 39,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_triangle"
+    },
+    {
+      "index": 40,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_line"
+    },
+    {
+      "index": 41,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_long"
+    },
+    {
+      "index": 42,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_short"
+    },
+    {
+      "index": 43,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_upperteeth_up"
+    },
+    {
+      "index": 44,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_upperteeth_down"
+    },
+    {
+      "index": 45,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_lowerteeth_up"
+    },
+    {
+      "index": 46,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_lowerteeth_down"
+    },
+    {
+      "index": 47,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_tongue_up"
+    },
+    {
+      "index": 48,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_tongue_down"
+    },
+    {
+      "index": 49,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_cheek_inflate"
+    },
+    {
+      "index": 50,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_dogteeth"
+    },
+    {
+      "index": 51,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_tongue"
+    },
+    {
+      "index": 52,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_teeth_hide"
+    },
+    {
+      "index": 53,
+      "kind": "blendshape",
+      "property": "blendShape.mouth_tongue_hide"
+    },
+    {
+      "index": 54,
+      "kind": "blendshape",
+      "property": "blendShape.----------EYE----------"
+    },
+    {
+      "index": 55,
+      "kind": "blendshape",
+      "property": "blendShape.eye_zitome"
+    },
+    {
+      "index": 56,
+      "kind": "blendshape",
+      "property": "blendShape.eye_smile"
+    },
+    {
+      "index": 57,
+      "kind": "blendshape",
+      "property": "blendShape.eye_close"
+    },
+    {
+      "index": 58,
+      "kind": "blendshape",
+      "property": "blendShape.eye_surprised"
+    },
+    {
+      "index": 59,
+      "kind": "blendshape",
+      "property": "blendShape.eye_surprised_L"
+    },
+    {
+      "index": 60,
+      "kind": "blendshape",
+      "property": "blendShape.eye_surprised_R"
+    },
+    {
+      "index": 61,
+      "kind": "blendshape",
+      "property": "blendShape.eye_line"
+    },
+    {
+      "index": 62,
+      "kind": "blendshape",
+      "property": "blendShape.eye_angry"
+    },
+    {
+      "index": 63,
+      "kind": "blendshape",
+      "property": "blendShape.eye_cool"
+    },
+    {
+      "index": 64,
+      "kind": "blendshape",
+      "property": "blendShape.eye_cool_L"
+    },
+    {
+      "index": 65,
+      "kind": "blendshape",
+      "property": "blendShape.eye_cool_R"
+    },
+    {
+      "index": 66,
+      "kind": "blendshape",
+      "property": "blendShape.eye_eyelid_up"
+    },
+    {
+      "index": 67,
+      "kind": "blendshape",
+      "property": "blendShape.eye_eyelid_up_L"
+    },
+    {
+      "index": 68,
+      "kind": "blendshape",
+      "property": "blendShape.eye_eyelid_up_R"
+    },
+    {
+      "index": 69,
+      "kind": "blendshape",
+      "property": "blendShape.eye_change"
+    },
+    {
+      "index": 70,
+      "kind": "blendshape",
+      "property": "blendShape.eye_wink_1_L"
+    },
+    {
+      "index": 71,
+      "kind": "blendshape",
+      "property": "blendShape.eye_wink_1_R"
+    },
+    {
+      "index": 72,
+      "kind": "blendshape",
+      "property": "blendShape.eye_wink_2_L"
+    },
+    {
+      "index": 73,
+      "kind": "blendshape",
+      "property": "blendShape.eye_wink_2_R"
+    },
+    {
+      "index": 74,
+      "kind": "blendshape",
+      "property": "blendShape.eye_highlight_1_hide"
+    },
+    {
+      "index": 75,
+      "kind": "blendshape",
+      "property": "blendShape.eye_highlight_2_hide"
+    },
+    {
+      "index": 76,
+      "kind": "blendshape",
+      "property": "blendShape.eye_highlight_3_hide"
+    },
+    {
+      "index": 77,
+      "kind": "blendshape",
+      "property": "blendShape.eye_small_L"
+    },
+    {
+      "index": 78,
+      "kind": "blendshape",
+      "property": "blendShape.eye_small_R"
+    },
+    {
+      "index": 79,
+      "kind": "blendshape",
+      "property": "blendShape.eye_big_L"
+    },
+    {
+      "index": 80,
+      "kind": "blendshape",
+      "property": "blendShape.eye_big_R"
+    },
+    {
+      "index": 81,
+      "kind": "blendshape",
+      "property": "blendShape.eye_near"
+    },
+    {
+      "index": 82,
+      "kind": "blendshape",
+      "property": "blendShape.eye_far"
+    },
+    {
+      "index": 83,
+      "kind": "blendshape",
+      "property": "blendShape.eye_up"
+    },
+    {
+      "index": 84,
+      "kind": "blendshape",
+      "property": "blendShape.eye_down"
+    },
+    {
+      "index": 85,
+      "kind": "blendshape",
+      "property": "blendShape.eye_left"
+    },
+    {
+      "index": 86,
+      "kind": "blendshape",
+      "property": "blendShape.eye_right"
+    },
+    {
+      "index": 87,
+      "kind": "blendshape",
+      "property": "blendShape.eye_eyellashes_1_hide"
+    },
+    {
+      "index": 88,
+      "kind": "blendshape",
+      "property": "blendShape.eye_eyelashes_2_hide"
+    },
+    {
+      "index": 89,
+      "kind": "blendshape",
+      "property": "blendShape.eye_doubleeyelid_1_hide"
+    },
+    {
+      "index": 90,
+      "kind": "blendshape",
+      "property": "blendShape.eye_doubleeyelid_2_hide"
+    },
+    {
+      "index": 91,
+      "kind": "blendshape",
+      "property": "blendShape.eye_star"
+    },
+    {
+      "index": 92,
+      "kind": "blendshape",
+      "property": "blendShape.eye_heart"
+    },
+    {
+      "index": 93,
+      "kind": "blendshape",
+      "property": "blendShape.eye_worry"
+    },
+    {
+      "index": 94,
+      "kind": "blendshape",
+      "property": "blendShape.----------EYEBROW----------"
+    },
+    {
+      "index": 95,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_smile_L"
+    },
+    {
+      "index": 96,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_smile_R"
+    },
+    {
+      "index": 97,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_serious_L"
+    },
+    {
+      "index": 98,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_serious_R"
+    },
+    {
+      "index": 99,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_big_1_L"
+    },
+    {
+      "index": 100,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_big_1_R"
+    },
+    {
+      "index": 101,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_big_2_L"
+    },
+    {
+      "index": 102,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_big_2_R"
+    },
+    {
+      "index": 103,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_worry_L"
+    },
+    {
+      "index": 104,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_worry_R"
+    },
+    {
+      "index": 105,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_shy_L"
+    },
+    {
+      "index": 106,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_shy_R"
+    },
+    {
+      "index": 107,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_angry_L"
+    },
+    {
+      "index": 108,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_angry_R"
+    },
+    {
+      "index": 109,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_up_L"
+    },
+    {
+      "index": 110,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_up_R"
+    },
+    {
+      "index": 111,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_down_L"
+    },
+    {
+      "index": 112,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_down_R"
+    },
+    {
+      "index": 113,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_long_L"
+    },
+    {
+      "index": 114,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_long_R"
+    },
+    {
+      "index": 115,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_short_L"
+    },
+    {
+      "index": 116,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_short_R"
+    },
+    {
+      "index": 117,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_move _front_L"
+    },
+    {
+      "index": 118,
+      "kind": "blendshape",
+      "property": "blendShape.eyebrow_move _front_R"
+    },
+    {
+      "index": 119,
+      "kind": "blendshape",
+      "property": "blendShape.----------SPECIAL----------"
+    },
+    {
+      "index": 120,
+      "kind": "blendshape",
+      "property": "blendShape.sp_ear_elf"
+    },
+    {
+      "index": 121,
+      "kind": "blendshape",
+      "property": "blendShape.sp_serious_1"
+    },
+    {
+      "index": 122,
+      "kind": "blendshape",
+      "property": "blendShape.sp_serious_2"
+    },
+    {
+      "index": 123,
+      "kind": "blendshape",
+      "property": "blendShape.sp_cheek"
+    },
+    {
+      "index": 124,
+      "kind": "blendshape",
+      "property": "blendShape.sp_tear_default"
+    },
+    {
+      "index": 125,
+      "kind": "blendshape",
+      "property": "blendShape.sp_tear_cool"
+    },
+    {
+      "index": 126,
+      "kind": "blendshape",
+      "property": "blendShape.eyeshighlight_move_L"
+    },
+    {
+      "index": 127,
+      "kind": "blendshape",
+      "property": "blendShape.eyeshighlight_move_R"
+    },
+    {
+      "index": 128,
+      "kind": "blendshape",
+      "property": "blendShape.Honoka_body_slim_1"
+    },
+    {
+      "index": 129,
+      "kind": "blendshape",
+      "property": "blendShape.Honoka_body_slim_2"
+    },
+    {
+      "index": 130,
+      "kind": "blendshape",
+      "property": "blendShape.Honoka_hands_slim"
+    },
+    {
+      "index": 131,
+      "kind": "blendshape",
+      "property": "blendShape.Honoka_foot_slim"
+    },
+    {
+      "index": 132,
+      "kind": "blendshape",
+      "property": "blendShape.Nayu_Hips_slim"
+    },
+    {
+      "index": 133,
+      "kind": "blendshape",
+      "property": "blendShape.Nayu_Arm_slim"
+    },
+    {
+      "index": 134,
+      "kind": "blendshape",
+      "property": "blendShape.Platinum_Foot_slim"
+    },
+    {
+      "index": 135,
+      "kind": "blendshape",
+      "property": "blendShape.Platinum_Body_slim"
+    },
+    {
+      "index": 136,
+      "kind": "blendshape",
+      "property": "blendShape.heel"
+    },
+    {
+      "index": 137,
+      "kind": "blendshape",
+      "property": "blendShape.Body_slim"
+    },
+    {
+      "index": 138,
+      "kind": "blendshape",
+      "property": "blendShape.UpperArm_L_slim"
+    },
+    {
+      "index": 139,
+      "kind": "blendshape",
+      "property": "blendShape.UpperArm_R_slim"
+    },
+    {
+      "index": 140,
+      "kind": "blendshape",
+      "property": "blendShape.LowerArm_L_slim"
+    },
+    {
+      "index": 141,
+      "kind": "blendshape",
+      "property": "blendShape.LowerArm_R_slim"
+    },
+    {
+      "index": 142,
+      "kind": "blendshape",
+      "property": "blendShape.Chest_slim1"
+    },
+    {
+      "index": 143,
+      "kind": "blendshape",
+      "property": "blendShape.Chest_slim2"
+    },
+    {
+      "index": 144,
+      "kind": "blendshape",
+      "property": "blendShape.Hips_slim"
+    },
+    {
+      "index": 145,
+      "kind": "blendshape",
+      "property": "blendShape.UpperLeg_L_slim"
+    },
+    {
+      "index": 146,
+      "kind": "blendshape",
+      "property": "blendShape.UpperLeg_R_slim"
+    },
+    {
+      "index": 147,
+      "kind": "blendshape",
+      "property": "blendShape.LowerLeg_L_slim"
+    },
+    {
+      "index": 148,
+      "kind": "blendshape",
+      "property": "blendShape.LowerLeg_R_slim"
+    },
+    {
+      "index": 149,
+      "kind": "blendshape",
+      "property": "blendShape.Leg_L_slim"
+    },
+    {
+      "index": 150,
+      "kind": "blendshape",
+      "property": "blendShape.Leg_R_slim"
+    },
+    {
+      "index": 151,
+      "kind": "blendshape",
+      "property": "blendShape.Foot_L_slim1"
+    },
+    {
+      "index": 152,
+      "kind": "blendshape",
+      "property": "blendShape.Foot_R_slim1"
+    },
+    {
+      "index": 153,
+      "kind": "blendshape",
+      "property": "blendShape.Foot_L_slim2"
+    },
+    {
+      "index": 154,
+      "kind": "blendshape",
+      "property": "blendShape.Foot_R_slim2"
+    },
+    {
+      "index": 155,
+      "kind": "blendshape",
+      "property": "blendShape.fronthair_change"
+    },
+    {
+      "index": 156,
+      "kind": "muscle",
+      "property": "Neck Nod Down-Up"
+    },
+    {
+      "index": 157,
+      "kind": "muscle",
+      "property": "Neck Tilt Left-Right"
+    },
+    {
+      "index": 158,
+      "kind": "muscle",
+      "property": "Neck Turn Left-Right"
+    },
+    {
+      "index": 159,
+      "kind": "muscle",
+      "property": "Head Nod Down-Up"
+    },
+    {
+      "index": 160,
+      "kind": "muscle",
+      "property": "Head Tilt Left-Right"
+    },
+    {
+      "index": 161,
+      "kind": "muscle",
+      "property": "Head Turn Left-Right"
+    },
+    {
+      "index": 162,
+      "kind": "muscle",
+      "property": "Left Eye Down-Up"
+    },
+    {
+      "index": 163,
+      "kind": "muscle",
+      "property": "Left Eye In-Out"
+    },
+    {
+      "index": 164,
+      "kind": "muscle",
+      "property": "Right Eye Down-Up"
+    },
+    {
+      "index": 165,
+      "kind": "muscle",
+      "property": "Right Eye In-Out"
+    }
+  ],
+  "curves": "curves.f32",
+  "neutral_style": "77",
+  "styles": [
+    {
+      "label": "微笑",
+      "subcategory": "轻微摇头微笑",
+      "emotion": "平静安心",
+      "environment": "悠闲放松",
+      "pace": "中等",
+      "context_id": "ctx_73c0dc5c3b64",
+      "id": "0",
+      "command": 8,
+      "offset": 0,
+      "frames": 91
+    },
+    {
+      "label": "惊讶震惊",
+      "subcategory": "头部一震睁大眼睛",
+      "emotion": "震惊",
+      "environment": "通用",
+      "pace": "中等",
+      "context_id": "ctx_9cd5bf99183f",
+      "id": "5",
+      "command": 11,
+      "offset": 91,
+      "frames": 89
+    },
+    {
+      "label": "难过流泪",
+      "subcategory": "难过欲泣",
+      "emotion": "难过、委屈",
+      "environment": "失落、诉说委屈、动情交流",
+      "pace": "缓慢",
+      "context_id": "ctx_8b0cf2dc95cb",
+      "id": "23",
+      "command": 25,
+      "offset": 180,
+      "frames": 139
+    },
+    {
+      "label": "自然放松",
+      "subcategory": "中性自然放松",
+      "emotion": "平静、中性",
+      "environment": "日常待机、安静倾听",
+      "pace": "从容",
+      "context_id": "ctx_437cb3ba1798",
+      "id": "77",
+      "command": 22,
+      "offset": 319,
+      "frames": 1559
+    }
+  ]
+}

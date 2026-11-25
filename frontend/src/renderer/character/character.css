@@ -1,0 +1,32 @@
+#character-stage.character-compact {
+    left: 3vw;
+    width: min(25vw, 230px);
+    height: min(42vh, 330px);
+}
+#character-stage .character-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: auto;
+    cursor: pointer;
+}
+#character-stage .character-hidden,
+#character-stage .character-canvas[hidden] { display: none; }
+.character-subtitle {
+    position: absolute;
+    z-index: 21;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 60%;
+    padding: 8px 14px;
+    text-align: center;
+    pointer-events: none;
+}
+#character-controls [role=status] { overflow-wrap: anywhere; margin-top: 6px; }
+#character-controls .character-expression:not([hidden]) { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+#character-controls .character-expression select { min-width: 0; font: inherit; }
+#character-controls .character-actions { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+#character-controls .character-motion-status:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; }
+#character-controls .character-motion-status[data-character-motion=failed] [role=status] { color: var(--ui-bad); font-weight: 700; }
+#character-controls button[aria-pressed=true] { outline: 1px solid var(--ui-accent); }

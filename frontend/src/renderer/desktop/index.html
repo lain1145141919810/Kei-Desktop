@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' data: blob:; media-src blob:; font-src 'self'; frame-src kei-page:; connect-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kei Desktop</title>
+    <link rel="icon" type="image/png" href="../../../assets/kei-logo.png">
+    <link rel="stylesheet" href="../shared/theme.css">
+    <link rel="stylesheet" href="../shared/shell-base.css">
+    <link rel="stylesheet" href="./desktop.css">
+    <link rel="stylesheet" href="./chat.css">
+    <link rel="stylesheet" href="../character/character.css">
+</head>
+<body data-presentation-phase="opening">
+    <section id="presentation-overlay" aria-label="起動・終了画面">
+        <div id="presentation-media"></div>
+        <button id="presentation-skip" type="button">スキップ</button>
+    </section>
+    <main id="window">
+        <div id="scene-background-layer">
+            <img id="scene-background" src="../../../assets/scene-standby.png" alt="" draggable="false">
+        </div>
+
+        <!-- 20. Character stage slot. Linux uses a placeholder; Codex mounts the real
+             Live2D / VRM renderer here on Windows through the same slot contract. -->
+        <section id="character-stage" data-slot="character-stage" data-renderer="placeholder" aria-label="キャラクターステージ">
+            <div class="stage-placeholder">
+                <div class="stage-silhouette" aria-hidden="true"></div>
+                <div class="stage-label">キャラクターステージ</div>
+                <div class="stage-note">プレースホルダー · 描画は Windows 版で統合</div>
+            </div>
+        </section>
+
+        <div id="status" class="ui-panel" role="status">
+            <span id="connection-dot"></span>
+            <span id="connection-text">接続中…</span>
+        </div>
+
+        <!-- Plugin page sheet: one mounted desktop entry at a time. -->
+        <aside id="plugin-sheet" class="ui-panel" aria-labelledby="plugin-sheet-title" tabindex="-1" hidden>
+            <header class="sheet-header">
+                <div class="sheet-heading">
+                    <div class="sheet-kicker">拡張</div>
+                    <div id="plugin-sheet-title" class="sheet-title"></div>
+                </div>
+                <button id="plugin-sheet-close" class="sheet-tool" type="button">閉じる</button>
+            </header>
+            <div id="plugin-sheet-body" class="sheet-body"></div>
+        </aside>
+    </main>
+
+    <section id="extension-panel" class="popover ui-panel" aria-label="拡張機能" data-state="loading" hidden>
+        <div class="popover-kicker">拡張機能</div>
+        <div id="extension-list" class="menu-list" role="menu" aria-label="拡張機能の一覧"></div>
+        <div id="extension-empty" class="popover-note" role="status">拡張機能を確認しています…</div>
+    </section>
+
+    <section id="quick-panel" class="popover ui-panel" aria-label="操作" hidden>
+        <div class="quick-block">
+            <div class="quick-title">配色</div>
+            <div class="segmented" id="quick-themes" role="group" aria-label="配色">
+                <button type="button" data-theme-id="hakuji">白磁</button>
+                <button type="button" data-theme-id="yoru">夜</button>
+                <button type="button" data-theme-id="sora">空</button>
+            </div>
+        </div>
+        <!-- Round 08: trusted screen capture (decision 5). Ctrl+Alt+S toggles the same flow. -->
+        <div class="quick-item" id="capture-block">
+            <div>
+                <div class="quick-title">画面観察</div>
+                <div class="popover-note" id="capture-status">停止中</div>
+            </div>
+            <button id="capture-toggle" class="switch" type="button" role="switch" aria-checked="false" aria-label="画面観察（Ctrl + Alt + S）" title="画面観察（Ctrl + Alt + S）"><i></i></button>
+        </div>
+        <div class="quick-block">
+            <div class="quick-title">Kei ホスト</div>
+            <div class="popover-note" id="quick-host-status">確認中…</div>
+        </div>
+        <div id="character-controls" class="quick-block" hidden>
+            <div class="quick-title">キャラクター</div>
+            <div class="segmented" role="group" aria-label="キャラクター表示">
+                <button type="button" data-character-model="live2d" aria-pressed="false">Live2D</button>
+                <button type="button" data-character-model="vrm" aria-pressed="false">VRM</button>
+                <button type="button" data-character-cg aria-pressed="false">CG</button>
+                <button type="button" data-character-compact aria-pressed="false">小窓</button>
+            </div>
+            <div class="character-actions">
+                <button class="pill" type="button" data-character-audio="sample">音声プレビュー</button>
+                <button class="pill" type="button" data-character-audio="stop" disabled>停止</button>
+            </div>
+            <div class="popover-note" role="status"></div>
+        </div>
+        <button id="admin-button" class="pill wide" type="button">管理ウィンドウを開く</button>
+    </section>
+
+    <div id="shell-toast" class="ui-panel" role="status" aria-live="polite"></div>
+    <div id="window-drag-handle" aria-hidden="true"></div>
+
+    <nav id="shell-toolbar" class="ui-panel" aria-label="ウィンドウ操作">
+        <button id="extension-button" class="shell-button" type="button" aria-expanded="false" aria-controls="extension-panel" title="拡張機能">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><path d="M16.5 13v7M13 16.5h7"/></svg>
+            <span>拡張</span>
+            <span id="extension-count" class="count-badge" hidden></span>
+        </button>
+        <button id="quick-button" class="shell-button" type="button" aria-expanded="false" aria-controls="quick-panel" title="配色・管理">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14" /><circle cx="9" cy="7" r="2" fill="currentColor" /><circle cx="15" cy="12" r="2" fill="currentColor" /><circle cx="8" cy="17" r="2" fill="currentColor" /></svg>
+            <span>操作</span>
+            <i id="capture-dot" title="画面観察中" hidden></i>
+        </button>
+        <button id="minimize-button" class="shell-button icon-only" type="button" aria-label="最小化" title="最小化">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 15h12"/></svg>
+        </button>
+        <button id="power-button" type="button" aria-label="Kei Desktop を終了する" title="Kei Desktop を終了する">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.2 10.3C8.4 6.6 15.6 6.6 20.8 10.3c.8.6 1 1.5.6 2.4l-.8 1.8c-.3.7-1.1 1-1.8.7l-3-1.2c-.6-.2-1-.8-.9-1.4l.1-1.2a14.6 14.6 0 0 0-6 0l.1 1.2c.1.6-.3 1.2-.9 1.4l-3 1.2c-.7.3-1.5 0-1.8-.7l-.8-1.8c-.4-.9-.2-1.8.6-2.4Z" /></svg>
+        </button>
+    </nav>
+
+    <script src="../shared/theme.js"></script>
+    <script src="../shared/plugin-frames.js"></script>
+    <script src="../shared/entry-icon.js"></script>
+    <script src="./desktop.js"></script>
+    <script src="./chat.js"></script>
+    <script src="./reading.js"></script>
+    <script src="./compact.js"></script>
+    <script src="./presentation.js"></script>
+    <script src="./focus-chip.js"></script>
+    <script src="./sessions.js"></script>
+    <script src="./overview.js"></script>
+    <script src="./reactions.js"></script>
+    <script src="./speech-plan.js"></script>
+    <script src="./voice.js"></script>
+    <script src="../character/kei-character.js"></script>
+</body>
+</html>

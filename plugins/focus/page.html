@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<title>集中タイマー</title>
+<style>
+  body { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 10px 8px 20px; }
+  h1 { align-self: stretch; margin: 0; }
+  .dial { position: relative; width: 236px; height: 236px; }
+  .dial svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .dial circle { fill: none; stroke-width: 9; }
+  .track { stroke: var(--ui-sunken); }
+  .arc { stroke: var(--ui-accent); stroke-linecap: round; transition: stroke-dashoffset 900ms linear, stroke 300ms ease; }
+  [data-phase="break"] .arc, [data-phase="long-break"] .arc { stroke: var(--ui-ok); }
+  .face { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+  .phase { font-size: 11px; font-weight: 700; letter-spacing: .26em; color: var(--ui-accent); }
+  [data-phase="break"] .phase, [data-phase="long-break"] .phase { color: var(--ui-ok); }
+  #clock { display: block; margin: 0; padding: 0; border: 0; background: none; font: 600 52px/1.1 var(--font-ui); font-variant-numeric: tabular-nums; letter-spacing: .02em; color: var(--ui-text); }
+  .state { font-size: 12px; color: var(--ui-sub); }
+  .controls { display: flex; gap: 8px; }
+  .controls button { margin: 0; min-width: 92px; }
+  #toggle { min-width: 132px; height: 40px; border-radius: 20px; border-color: var(--ui-accent); background: var(--ui-accent); color: var(--ui-on-accent); font-size: 14px; }
+  .controls .secondary { height: 40px; border-radius: 20px; }
+  .presets { display: flex; width: min(100%, 340px); padding: 3px; border-radius: 12px; background: var(--ui-sunken); }
+  .presets button { flex: 1; height: 30px; margin: 0; border: 0; border-radius: 9px; background: transparent; color: var(--ui-sub); font-size: 12px; }
+  .presets button[aria-pressed="true"] { background: var(--ui-panel-solid); color: var(--ui-text); box-shadow: 0 1px 4px rgba(0,0,0,.14); }
+  .stats { display: flex; gap: 10px; width: min(100%, 340px); }
+  .stat { flex: 1; padding: 10px 14px; border: 1px solid var(--ui-line); border-radius: 14px; background: var(--ui-panel-solid); }
+  .stat b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 11px; font-weight: 700; color: var(--ui-sub); letter-spacing: .08em; }
+  .dots { display: flex; gap: 5px; margin-top: 6px; }
+  .dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--ui-sunken); box-shadow: inset 0 0 0 1px var(--ui-line); }
+  .dots i.on { background: var(--ui-accent); box-shadow: none; }
+  #error { width: min(100%, 340px); margin: 0; border-left-color: var(--ui-bad); }
+</style>
+<body data-phase="focus">
+  <h1>集中タイマー</h1>
+  <div class="dial">
+    <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="track" cx="60" cy="60" r="52"/><circle class="arc" id="arc" cx="60" cy="60" r="52" pathLength="1000" stroke-dasharray="1000" stroke-dashoffset="0"/></svg>
+    <div class="face">
+      <div class="phase" id="phase">集中</div>
+      <output id="clock" aria-live="off">25:00</output>
+      <div class="state" id="state">待機中</div>
+    </div>
+  </div>
+  <div class="controls">
+    <button type="button" id="toggle">開始</button>
+    <button type="button" class="secondary" data-action="skip" title="次の区切りへ進む">スキップ</button>
+    <button type="button" class="secondary" data-action="cancel">リセット</button>
+  </div>
+  <div class="presets" role="group" aria-label="時間の設定">
+    <button type="button" data-preset="25">25 / 5 分</button>
+    <button type="button" data-preset="50">50 / 10 分</button>
+    <button type="button" data-preset="15">15 / 3 分</button>
+  </div>
+  <div class="stats">
+    <div class="stat"><span>今日の集中</span><b id="completed">0</b></div>
+    <div class="stat"><span>長い休憩まで</span><div class="dots" id="dots"><i></i><i></i><i></i><i></i></div></div>
+  </div>
+  <output id="error" aria-live="polite"></output>
+  <script>
+    const MIN = 60000;
+    const PRESETS = {"25": [25, 5, 15], "50": [50, 10, 20], "15": [15, 3, 10]};
+    const PHASES = {focus: ["集中", 0], break: ["休憩", 1], "long-break": ["長い休憩", 2]};
+    const STATES = {idle: "待機中", running: "進行中", paused: "一時停止中"};
+    const $ = id => document.getElementById(id);
+    let pending = false;
+    let status = "idle";
+    function call(action, args = {}) {
+      pending = true;
+      parent.postMessage({type:'kei:call', id:action, action, arguments:args}, '*');
+    }
+    document.querySelectorAll('[data-action]').forEach(button => button.onclick = () => call(button.dataset.action));
+    document.querySelectorAll('[data-preset]').forEach(button => button.onclick = () => call('preset', {preset: button.dataset.preset}));
+    $('toggle').onclick = () => call(status === 'running' ? 'pause' : status === 'paused' ? 'resume' : 'start');
+    function render(result) {
+      status = result.status;
+      const [label, index] = PHASES[result.phase] || PHASES.focus;
+      const total = (PRESETS[result.preset] || PRESETS["25"])[index] * MIN;
+      const remaining = Math.max(0, result.remaining);
+      document.body.dataset.phase = result.phase;
+      $('phase').textContent = label;
+      $('clock').textContent = new Date(remaining).toISOString().slice(14, 19);
+      $('state').textContent = STATES[status] || status;
+      $('arc').setAttribute('stroke-dashoffset', String(Math.round(1000 * (1 - remaining / total))));
+      $('toggle').textContent = status === 'running' ? '一時停止' : status === 'paused' ? '再開' : '開始';
+      $('completed').textContent = String(result.completed);
+      document.querySelectorAll('[data-preset]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.preset === result.preset)));
+      const inCycle = result.completed % 4;
+      [...$('dots').children].forEach((dot, i) => dot.classList.toggle('on', i < inCycle));
+      $('error').textContent = '';
+    }
+    window.addEventListener('message', ({source,data}) => {
+      if (source !== parent || data?.type !== 'kei:result') return;
+      pending = false;
+      const failure = data.ok ? data.result?.error : data.error;
+      if (failure) { $('error').textContent = failure.message; return; }
+      const result = data.result;
+      render(result);
+      if (result.notices.length) parent.postMessage({type:'kei:notification-request', id:result.notices[0].id}, '*');
+    });
+    const timer = setInterval(() => { if (!pending) call('tick'); }, 1000);
+    window.addEventListener('beforeunload', () => clearInterval(timer));
+    call('status');
+  </script>
+</body>
+</html>

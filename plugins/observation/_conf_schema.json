@@ -1,0 +1,4 @@
+{
+  "interval_seconds": {"type":"int","default":4,"minimum":2,"maximum":60,"description":"画面間隔（秒）"},
+  "context_ttl_seconds": {"type":"int","default":20,"minimum":5,"maximum":120,"description":"観察結果の有効時間（秒）"}
+}

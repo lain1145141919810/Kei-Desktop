@@ -1,0 +1,22 @@
+{
+  "default_locale": {
+    "type": "string",
+    "default": "ja-JP",
+    "options": ["ja-JP", "zh-CN", "en-US"],
+    "description": "Default BCP-47 locale when the caller omits locale and selects sapi-auto."
+  },
+  "rate": {
+    "type": "int",
+    "default": 0,
+    "minimum": -10,
+    "maximum": 10,
+    "description": "Windows SAPI speaking rate (-10 slowest to 10 fastest)."
+  },
+  "volume": {
+    "type": "int",
+    "default": 100,
+    "minimum": 0,
+    "maximum": 100,
+    "description": "Windows SAPI output volume (0 to 100)."
+  }
+}

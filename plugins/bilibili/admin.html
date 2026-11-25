@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<title>Bilibili 設定</title>
+<body>
+  <h1>Bilibili 設定</h1>
+  <p id="configuration"></p>
+  <button id="account">アカウント状態を確認</button>
+  <button id="schedule-pause">検索予定を一時停止</button>
+  <button id="schedule-resume">検索予定を再開</button>
+  <output id="schedule"></output>
+  <output id="status" aria-live="polite"></output>
+  <script>
+    const out = document.getElementById('status');
+    parent.postMessage({type:'kei:call', id:'capabilities', action:'capabilities', arguments:{}}, '*');
+    document.getElementById('account').onclick = () => {
+      const requestId = Array.from(crypto.getRandomValues(new Uint32Array(4)), n => n.toString(16)).join('-');
+      parent.postMessage({type:'kei:call', id:'account', action:'query', arguments:{operation:'account', requestId}}, '*');
+    };
+    function schedule(action) {
+      parent.postMessage({type:'kei:call', id:'schedule', action, arguments:{}}, '*');
+    }
+    document.getElementById('schedule-pause').onclick = () => schedule('schedule.pause');
+    document.getElementById('schedule-resume').onclick = () => schedule('schedule.resume');
+    schedule('schedule.status');
+    window.addEventListener('message', ({source, data}) => {
+      if (source !== parent || data?.type !== 'kei:result') return;
+      const error = data.ok ? data.result?.error : data.error;
+      if (error) { out.textContent = error.message; return; }
+      if (data.id === 'capabilities') {
+        document.getElementById('configuration').textContent =
+          'MCP：' + data.result.serverId + ' · ' + data.result.interactions.join('、');
+      }
+      if (data.id === 'schedule') {
+        const result = data.result;
+        document.getElementById('schedule').textContent = result.paused ? '一時停止中'
+          : result.enabled ? '検索予定あり' : '検索予定なし';
+      }
+      if (data.id === 'account') {
+        out.textContent = data.result.status === 'account_required' ? 'ログインが必要です' : '確認結果を受信しました';
+      }
+    });
+  </script>
+</body>
+</html>

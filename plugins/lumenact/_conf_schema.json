@@ -1,0 +1,33 @@
+{
+  "selector_mode": {
+    "type": "string",
+    "default": "onnx",
+    "options": ["onnx", "fixed"],
+    "description": "表情選択方式",
+    "hint": "onnx は公式モデルを使用します。fixed は指定した収録クリップを選びます。"
+  },
+  "resource_root": {
+    "type": "string",
+    "default": "",
+    "description": "LumenAct リソースのローカルフォルダー",
+    "hint": "絶対パスを指定します。配下の models/semantic と models/expression に公式ファイルを置きます。"
+  },
+  "fixed_clip": {
+    "type": "string",
+    "default": "0",
+    "description": "固定モードのクリップ ID"
+  },
+  "strength": {
+    "type": "float",
+    "default": 0.85,
+    "minimum": 0,
+    "maximum": 1,
+    "description": "表情の強さ"
+  },
+  "mapping": {
+    "type": "dict",
+    "default": {},
+    "description": "VRM 表情名と LumenAct チャンネルの対応",
+    "hint": "VRM の表情名をキーに、blendShape. を除いた元チャンネル名の配列を指定します。空欄は既定の対応を使います。"
+  }
+}

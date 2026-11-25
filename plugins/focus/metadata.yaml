@@ -1,0 +1,31 @@
+schemaVersion: 1
+apiVersion: 1
+id: kei.focus
+name: "集中タイマー"
+version: "0.1.1"
+requiresFeatures: [plugin-pages-v1]
+permissions: [focus.read, focus.control, focus.migrate]
+actions:
+  - {id: status, scope: focus.read}
+  - {id: tick, scope: focus.control}
+  - {id: start, scope: focus.control}
+  - {id: pause, scope: focus.control}
+  - {id: resume, scope: focus.control}
+  - {id: cancel, scope: focus.control}
+  - {id: skip, scope: focus.control}
+  - {id: preset, scope: focus.control}
+  - {id: claim, scope: focus.control}
+  - {id: legacy.import, scope: focus.migrate}
+entries:
+  - id: timer
+    title: "集中タイマー"
+    slot: extensions
+    icon: "⏱"
+    page: page.html
+    actions: [status, tick, start, pause, resume, cancel, skip, preset, claim]
+  - id: timer-admin
+    title: "集中タイマーの履歴"
+    slot: admin
+    icon: "履"
+    page: admin.html
+    actions: [status, legacy.import]

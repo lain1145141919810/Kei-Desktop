@@ -1,0 +1,51 @@
+schemaVersion: 1
+apiVersion: 1
+id: kei.openai-compat-models
+name: "OpenAI-Compatible Model Provider"
+version: "1.0.0"
+requiresFeatures:
+  - model-providers-v1
+  - config-schema-v1
+permissions:
+  - model.provide.tts
+  - model.provide.asr
+  - model.provide.vision
+  - model.provide.embedding
+actions:
+  - id: openai.tts
+    scope: model.provide.tts
+  - id: openai.asr
+    scope: model.provide.asr
+  - id: openai.vision
+    scope: model.provide.vision
+  - id: openai.embedding
+    scope: model.provide.embedding
+modelProviders:
+  - capability: tts
+    action: openai.tts
+    models:
+      - gpt-4o-mini-tts
+      - tts-1
+      - custom-tts
+    requiresCredential: true
+  - capability: asr
+    action: openai.asr
+    models:
+      - gpt-4o-mini-transcribe
+      - whisper-1
+      - custom-asr
+    requiresCredential: true
+  - capability: vision
+    action: openai.vision
+    models:
+      - gpt-4o-mini
+      - gpt-4.1-mini
+      - custom-vision
+    requiresCredential: true
+  - capability: embedding
+    action: openai.embedding
+    models:
+      - text-embedding-3-small
+      - text-embedding-3-large
+      - custom-embedding
+    requiresCredential: true

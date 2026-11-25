@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<title>テキストの抜粋</title>
+<style>
+  .drop { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; padding: 16px 18px; border: 1.5px dashed var(--ui-line); border-radius: 16px; background: var(--ui-panel-solid); }
+  .drop svg { flex: none; width: 30px; height: 30px; color: var(--ui-accent); }
+  .drop p { margin: 0; font-size: 13px; color: var(--ui-sub); }
+  .drop b { display: block; color: var(--ui-text); font-size: 14px; }
+  .actions { display: flex; gap: 8px; margin-bottom: 12px; }
+  .actions button { margin: 0; }
+  #run:not(:disabled) { border-color: var(--ui-accent); background: var(--ui-accent); color: var(--ui-on-accent); }
+  #result { max-height: none; font-family: var(--font-ui); font-size: 13px; line-height: 1.8; }
+</style>
+<body>
+  <h1>テキストの抜粋</h1>
+  <div class="drop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg><p><b>添付したファイルの文章を読み取ります</b>UTF-8 のテキストに対応しています。</p></div>
+  <div class="actions">
+    <button id="run" disabled>読み取る</button>
+    <button id="cancel" disabled>中止</button>
+  </div>
+  <pre id="result" aria-live="polite"></pre>
+  <script>
+    let attachmentId, job, timer;
+    const run = document.getElementById('run');
+    const cancel = document.getElementById('cancel');
+    const output = document.getElementById('result');
+    function call(action, args) {
+      parent.postMessage({type:'kei:call', id:action, action, arguments:args}, '*');
+    }
+    run.onclick = () => {
+      run.disabled = true;
+      call('extract.start', {attachmentId});
+    };
+    cancel.onclick = () => call('extract.cancel', {id:job});
+    window.addEventListener('message', ({source,data}) => {
+      if (source !== parent) return;
+      if (data?.type === 'kei:attachment' && typeof data.id === 'string') {
+        attachmentId = data.id;
+        run.disabled = false;
+      }
+      if (data?.type !== 'kei:result') return;
+      const error = data.ok ? data.result?.error : data.error;
+      if (error) {
+        output.textContent = error.message || '読み取れないファイル形式です';
+        run.disabled = !attachmentId;
+        cancel.disabled = true;
+        return;
+      }
+      if (data.id === 'extract.start') {
+        job = data.result.id;
+        cancel.disabled = false;
+        call('extract.status', {id:job});
+      }
+      if (data.id === 'extract.status') {
+        if (data.result.status === 'running') timer = setTimeout(() => call('extract.status', {id:job}), 250);
+        else {
+          output.textContent = data.result.text || (data.result.status === 'cancelled' ? '中止しました' : '');
+          run.disabled = !attachmentId;
+          cancel.disabled = true;
+        }
+      }
+    });
+    window.addEventListener('beforeunload', () => clearTimeout(timer));
+  </script>
+</body>
+</html>

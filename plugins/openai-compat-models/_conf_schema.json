@@ -1,0 +1,39 @@
+{
+  "base_url": {
+    "type": "string",
+    "default": "",
+    "description": "Authorized OpenAI-compatible API base URL (HTTPS or loopback HTTP, e.g. https://api.example.com/v1)."
+  },
+  "timeout_seconds": {
+    "type": "int",
+    "default": 16,
+    "minimum": 1,
+    "maximum": 25,
+    "description": "HTTP request timeout in seconds."
+  },
+  "default_voice": {
+    "type": "string",
+    "default": "alloy",
+    "description": "Fallback voice identifier for /audio/speech when input.voice is omitted."
+  },
+  "tts_model_override": {
+    "type": "string",
+    "default": "",
+    "description": "Optional backend model ID used when custom-tts is selected."
+  },
+  "asr_model_override": {
+    "type": "string",
+    "default": "",
+    "description": "Optional backend model ID used when custom-asr is selected."
+  },
+  "vision_model_override": {
+    "type": "string",
+    "default": "",
+    "description": "Optional backend model ID used when custom-vision is selected."
+  },
+  "embedding_model_override": {
+    "type": "string",
+    "default": "",
+    "description": "Optional backend model ID used when custom-embedding is selected."
+  }
+}

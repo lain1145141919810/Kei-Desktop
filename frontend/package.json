@@ -1,0 +1,17 @@
+{
+  "name": "kei-desktop-shell",
+  "version": "1.0.0",
+  "description": "Kei Desktop plugin-first Electron shell (Linux frontend, Round 05)",
+  "main": "src/main/main.js",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test \"tests/unit/*.test.js\"",
+    "acceptance": "node tests/acceptance/counter.mjs"
+  },
+  "devDependencies": {
+    "electron": "44.11.6",
+    "playwright-core": "1.65.1"
+  }
+}

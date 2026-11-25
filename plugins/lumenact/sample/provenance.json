@@ -1,0 +1,33 @@
+{
+  "sourceRevision": "7585447a131b51e12962cac829e14e3a9f9c00f3",
+  "assetRevision": "df8126a2a854735227ec81b7f12ab62d49a6d989",
+  "sourceCatalogSha256": "e8eb061eb8507f4c8047b3ba6dea4e22645d349ddb685b5590e7e65548ff45e5",
+  "sourceCurvesSha256": "b75515de64a1b9195985353b5a55e36eaf4d32dcb58fc32548ff570e205f9cb9",
+  "changes": "Selected full spans and rebased offsets. No sample values changed.",
+  "spans": [
+    {
+      "id": "0",
+      "originalOffset": 0,
+      "frames": 91,
+      "sha256": "c2adc65545c6eed45452d039e78e322c20a6362f983566d6c77ccd2fc03b1ea5"
+    },
+    {
+      "id": "5",
+      "originalOffset": 431,
+      "frames": 89,
+      "sha256": "8080d1a769df234f1e4746c570b3a9c348873845e958d618b66aa2cd2a83b525"
+    },
+    {
+      "id": "23",
+      "originalOffset": 1927,
+      "frames": 139,
+      "sha256": "6cdcff913328f03df2e4d9ad644333723e5cfd3c7d8f38a9389e08af9aa38859"
+    },
+    {
+      "id": "77",
+      "originalOffset": 8145,
+      "frames": 1559,
+      "sha256": "5c1c975986d0aab069c34c42092a24581d6de8efafa0c089ad27c5d3f7046580"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "port": {"type": "int", "default": 9880, "minimum": 1, "maximum": 65535, "description": "Loopback GPT-SoVITS port"},
+  "parameters": {"type": "string", "default": "{}", "description": "Local GPT-SoVITS v2 synthesis options as JSON"}
+}

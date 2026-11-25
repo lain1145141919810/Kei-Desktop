@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<title>読書プランの管理</title>
+<body>
+  <h1>読書プランの管理</h1>
+  <ul id="plans"></ul>
+  <form id="import">
+    <label>以前の読書プラン JSON <textarea id="legacy" required></textarea></label>
+    <button>読み込む</button>
+  </form>
+  <button id="rollback" disabled>直前の取り込みを取り消す</button>
+  <output id="result" aria-live="polite"></output>
+  <script>
+    const byId = name => document.getElementById(name);
+    let serial = 0;
+    let migrationId = null;
+    const pending = new Map();
+    function call(action, args = {}) {
+      const id = String(++serial);
+      return new Promise((resolve, reject) => {
+        pending.set(id, {resolve, reject});
+        parent.postMessage({type:'kei:call', id, action, arguments:args}, '*');
+      });
+    }
+    window.addEventListener('message', ({source, data}) => {
+      if (source !== parent || data?.type !== 'kei:result') return;
+      const wait = pending.get(data.id);
+      pending.delete(data.id);
+      if (!wait) return;
+      const error = data.ok ? data.result?.error : data.error;
+      if (error) wait.reject(Error(error.message));
+      else wait.resolve(data.result);
+    });
+    async function refresh() {
+      const records = await call('plans.list');
+      byId('plans').replaceChildren(...records.map(plan => {
+        const row = document.createElement('li');
+        row.textContent = plan.title + ' · ' + plan.currentPage + '/' + plan.totalPages;
+        return row;
+      }));
+    }
+    function render(value) { byId('result').textContent = value; }
+    byId('import').onsubmit = async event => {
+      event.preventDefault();
+      try {
+        const result = await call('legacy.import', {plans:JSON.parse(byId('legacy').value)});
+        if (!result.duplicate) migrationId = result.migrationId;
+        byId('rollback').disabled = !migrationId;
+        render('取り込み：' + result.added);
+        await refresh();
+      } catch (error) { render(error.message); }
+    };
+    byId('rollback').onclick = async () => {
+      try {
+        const result = await call('legacy.rollback', {migrationId});
+        migrationId = null;
+        byId('rollback').disabled = true;
+        render('取り消し：' + result.removed + '、保持：' + result.preserved);
+        await refresh();
+      } catch (error) { render(error.message); }
+    };
+    refresh().catch(error => render(error.message));
+  </script>
+</body>
+</html>

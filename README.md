@@ -1,34 +1,40 @@
-<div align="center">
+# Kei Desktop 1.0
 
-<img src="KeiDesktop/assets/branding/kei-logo.png" width="180" alt="ケイのロゴ">
+Kei Desktop is an unofficial desktop companion. Its Electron shell connects to a local Python host for chat, character performance, plugin administration and optional tools. This branch is the 1.0 **source preview**. Windows release installers and a completed Round 27 acceptance report are still pending.
 
-# Kei Desktop
+## Build and run on Windows
 
-Windows 用の Live2D デスクトップアシスタント。ケイと日本語で話し、資料を読み、作業を依頼できます。
+Use Node.js with npm and Python 3.11 or newer. The integration was tested with Node 24, Python 3.11 and Electron 44.11.6.
 
-[Windows x64 版のダウンロード](https://github.com/lain1145141919810/Kei-Desktop/releases/tag/v0.3.2) · [日本語設定ガイド](docs/STANDALONE.ja.md) · [AI に渡すインストール指示](KeiDesktop/standalone/AI-INSTALL.ja.txt)
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe build.py
+npm --prefix frontend ci
+npm --prefix frontend/character ci
+npm --prefix frontend/character run build
+.\Launch-Kei.cmd
+```
 
-</div>
+The normal launcher uses a new profile beneath LocalAppData and starts the bundled host on a random loopback port. A character-less build can open the shell and its admin UI. For development on another platform, set KEI_HOST_ARTIFACT to the absolute path of dist/kei-host.pyz and KEI_HOST_PYTHON to the virtual environment's Python, then run npm --prefix frontend start. Platform-specific window and capture features still need their own validation.
 
-![デスクトップの全体画面](docs/screenshots/full-window.png)
+## Chat, models and plugins
 
-## はじめに
+- Open 「管理 → モデル → 会話モデル」. Enter an authorized OpenAI-compatible Chat Completions endpoint and model ID. Use an environment variable name for the credential reference, then select 「接続テスト」 and 「保存」. Restart if the host needs to inherit a newly set environment variable. A successful connection probe checks reachability and response format. Multi-turn acceptance is a separate test.
+- Turn on 「操作 → ケイの声で読み上げる」 and choose an installed TTS provider under 「管理 → モデル」. Aqua/GPT-SoVITS requires an independently configured local service. The source tree supplies the integration code. Windows SAPI and other model providers are optional plugins.
+- Package a trusted plugin with .venv\Scripts\python.exe -m kei_sdk.pack plugins/hastsec kei.hastsec.zip, then install it in the management window and enable only the required scopes. HAST-SEC needs the matching user-local solver checkout. Install requirements-mcp.txt into the host environment before configuring optional MCP connections.
+- The local host API is version 1. Its connection descriptor is generated per run and grants access to authenticated local clients. Keep it, chat histories, model settings and credentials in the user profile.
 
-ZIP を展開し、Kei Desktop.exe を起動します。初回の「キャラクター設定」で名前、人格、立ち絵、起動音を設定するか、配布されたキャラクターパックを読み込めます。「操作」から管理ウィンドウを開き、会話用モデルを設定してください。Live2D は同梱されています。音声認識、読み上げ、AstrBot、DSH は必要に応じて追加できます。
+[Plugin author guide](docs/plugin-author.md) · [Host API](docs/host-api.md) · [Plugin management](docs/plugin-admin.md) · [Model providers](docs/model-providers.md) · [MCP](docs/mcp-api.md) · [Task executors](docs/execution-api.md)
 
-| 機能 | 使い方 |
-|---|---|
-| 音声入力 | F8 で録音を開始・終了し、日本語の発話を会話に送ります。 |
-| 長期記憶 | 好みや覚えてほしい事柄を登録すると、再起動後も関連する会話で使えます。 |
-| PDF 読書 | 選択した文章を Ctrl+Alt+Q で取り込み、抜粋への質問や読書計画の作成ができます。 |
-| 画面観察 | Ctrl+Alt+S で切り替え、表示中の画面について画像対応モデルに相談できます。 |
-| デスクトップ小窓 | ダブルクリック、Esc、Ctrl+Alt+K で元の表示に戻れます。 |
-| 集中タイマー | 作業と休憩の時間をデスクトップで管理できます。 |
+## Local artwork and character assets
 
-![デスクトップ小窓](docs/screenshots/compact-mode.png)
-![読書パネル](docs/screenshots/pdf-reading.png)
-![集中タイマー](docs/screenshots/focus-timer.png)
+The source preview has neutral placeholders. To build with a model you have permission to use, set KEI_VRM_MODEL to a self-contained VRM, or set KEI_LIVE2D_MODEL to a local model3.json and KEI_CUBISM_SDK to the local Cubism SDK. Run npm --prefix frontend/character run build again. Optional opening and closing media can be selected in the app. Generated bundles may embed the supplied assets, so keep personalized bundles, voice weights, recordings and profiles local. See [character setup](docs/character-stage.md) and the [distribution profiles](docs/installation-profiles.md).
 
-[音声モデル、素材、API の設定](docs/STANDALONE.ja.md) · [従来版の移行手順（中国語）](docs/MIGRATION.zh.md) · [中国語のプロジェクト紹介](README.zh.md) · [中文安装指南](docs/STANDALONE.zh.md) · [中文 AI 安装提示词](KeiDesktop/standalone/AI-INSTALL.zh.txt)
+## Verification status
 
-開発時は KeiDesktop フォルダーで npm ci、npm start の順に実行します。Windows 配布用 ZIP は Build-Portable.ps1 で生成できます。自作コードのライセンスと素材の出典は [LICENSE](LICENSE) および [第三者素材の表記](THIRD_PARTY_NOTICES.md) を参照してください。
+The R26 Windows integration ran 88 unit tests, three visible cold launches with an actual HAST-SEC/VRM first requested motion, five disable/enable cycles and two Admin reconnect runs on Electron 44.11.6. The speech path was checked with scripted loopback chat, real local Aqua and the application's Windows audio-session output. Simulated timing, scheduled audio start and measured output signal describe different stages. Round 27 still needs independent extended cold starts, a matched real-provider conversation, and rollback and profile-migration validation. The public placeholder artwork is specific to this source snapshot.
+
+**Existing profile migration is a release blocker.** One older Windows trial directory was found to inherit broad full-control permissions. Start 1.0 with a fresh user-private profile. Migration of existing chats, settings and databases requires preserving the originals and validating access controls on the migrated copy. Do not use the older shared workspace directory as the new profile.
+
+Source code is under [MIT](LICENSE). Separately licensed plugin sample data retains its accompanying notices.

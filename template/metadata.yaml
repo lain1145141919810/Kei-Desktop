@@ -1,0 +1,22 @@
+schemaVersion: 1
+apiVersion: 1
+id: example.hello
+name: "あいさつ"
+version: "0.1.0"
+requiresFeatures: [config-schema-v1]
+permissions:
+  - greeting.read
+actions:
+  - id: greet
+    scope: greeting.read
+entries:
+  - id: desktop
+    slot: extensions
+    title: "あいさつ"
+    page: page.html
+    actions: [greet]
+  - id: settings
+    slot: admin
+    title: "あいさつ設定"
+    page: page.html
+    actions: [greet]

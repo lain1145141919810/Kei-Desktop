@@ -1,0 +1,25 @@
+{
+  "model_dir": {
+    "type": "string",
+    "default": "",
+    "description": "Local directory containing SenseVoice ONNX files (model.int8.onnx and tokens.txt)."
+  },
+  "default_language": {
+    "type": "string",
+    "default": "auto",
+    "options": ["auto", "ja", "zh", "en", "ko", "yue"],
+    "description": "Fallback language hint when the caller omits locale."
+  },
+  "num_threads": {
+    "type": "int",
+    "default": 4,
+    "minimum": 1,
+    "maximum": 16,
+    "description": "CPU thread count passed to sherpa-onnx."
+  },
+  "use_itn": {
+    "type": "bool",
+    "default": true,
+    "description": "Enable SenseVoice inverse text normalization (punctuation and numerals)."
+  }
+}

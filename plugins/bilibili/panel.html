@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<title>Bilibili</title>
+<body>
+  <h1>Bilibili</h1>
+  <form id="query">
+    <label>検索 <input id="keyword" required maxlength="180"></label>
+    <button>検索</button>
+  </form>
+  <form id="detail">
+    <label>BV ID <input id="bvid" required maxlength="20"></label>
+    <button>動画情報</button>
+  </form>
+  <form id="interact">
+    <label>コメント <textarea id="comment" required maxlength="800"></textarea></label>
+    <button>確認へ</button>
+  </form>
+  <button type="button" id="preview">プレビュー</button>
+  <figure id="evidence"></figure>
+  <pre id="result" aria-live="polite"></pre>
+  <script>
+    const byId = name => document.getElementById(name);
+    const requests = new Map();
+    let serial = 0;
+    function send(type, message) {
+      const id = String(++serial);
+      return new Promise((resolve, reject) => {
+        requests.set(id, {resolve, reject});
+        parent.postMessage({type, id, ...message}, '*');
+      });
+    }
+    const call = (action, args) => send('kei:call', {action, arguments:args});
+    const newKey = () => Array.from(crypto.getRandomValues(new Uint32Array(4)), n => n.toString(16)).join('-');
+    window.addEventListener('message', ({source, data}) => {
+      if (source !== parent || !['kei:result','kei:mcp-confirmation'].includes(data?.type)) return;
+      const pending = requests.get(data.id);
+      requests.delete(data.id);
+      if (!pending) return;
+      const error = data.ok ? data.result?.error : data.error;
+      if (error) pending.reject(Error(error.message));
+      else pending.resolve(data.result);
+    });
+    function display(receipt) {
+      const result = receipt.result;
+      byId('result').textContent = receipt.status === 'account_required' ? 'ログインが必要です'
+        : result.content.map(item => item.text || '').filter(Boolean).join('\n');
+    }
+    function run(form, action) {
+      byId(form).onsubmit = async event => {
+        event.preventDefault();
+        const button = byId(form).querySelector('button');
+        button.disabled = true;
+        try { display(await action()); }
+        catch (error) { byId('result').textContent = error.message; }
+        finally { button.disabled = false; }
+      };
+    }
+    run('query', () => call('query', {operation:'search', keyword:byId('keyword').value, requestId:newKey()}));
+    run('detail', () => call('query', {operation:'detail', bvid:byId('bvid').value, requestId:newKey()}));
+    byId('preview').onclick = async () => {
+      try {
+        const receipt = await call('preview', {bvid:byId('bvid').value, requestId:newKey()});
+        display({...receipt,status:'received'});
+        byId('evidence').replaceChildren(...receipt.evidence.map(frame => {
+          const image = document.createElement('img');
+          image.alt = '動画プレビュー';
+          image.src = 'data:' + frame.mime + ';base64,' + frame.base64;
+          return image;
+        }));
+      } catch (error) { byId('result').textContent = error.message; }
+    };
+    run('interact', async () => {
+      const data = {operation:'comment', bvid:byId('bvid').value, text:byId('comment').value, requestId:newKey()};
+      const draft = await call('prepare', data);
+      const approval = await send('kei:mcp-confirm', {draft});
+      return call('interact', {...data, confirmation:approval.confirmation});
+    });
+  </script>
+</body>
+</html>

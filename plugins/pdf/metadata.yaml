@@ -1,0 +1,36 @@
+schemaVersion: 1
+apiVersion: 1
+id: kei.pdf
+name: "読書"
+version: "0.1.1"
+requiresFeatures: [chat-broker-v1, plugin-pages-v1]
+permissions: [pdf.read, pdf.write, pdf.migrate, chat.ask]
+actions:
+  - {id: plans.list, scope: pdf.read}
+  - {id: plans.get, scope: pdf.read}
+  - {id: plans.create, scope: pdf.write}
+  - {id: plans.progress, scope: pdf.write}
+  - {id: plans.note, scope: pdf.write}
+  - {id: plans.remove, scope: pdf.write}
+  - {id: legacy.import, scope: pdf.migrate}
+  - {id: legacy.rollback, scope: pdf.migrate}
+  - {id: selection.ask, scope: chat.ask}
+entries:
+  - id: reading
+    title: "読書"
+    slot: extensions
+    icon: "読"
+    page: reading.html
+    actions: [plans.list, plans.get, plans.create, plans.progress, plans.note, selection.ask]
+  - id: selection
+    title: "選択した文章について質問"
+    slot: selection
+    icon: "読"
+    page: selection.html
+    actions: [plans.list, selection.ask]
+  - id: reading-admin
+    title: "読書プランの管理"
+    slot: admin
+    icon: "読"
+    page: admin.html
+    actions: [plans.list, plans.get, plans.remove, legacy.import, legacy.rollback]

@@ -1,0 +1,4 @@
+{
+  "bridge_origin": {"type": "string", "default": "", "description": "AstrBot のローカルブリッジ（http://127.0.0.1:17882）"},
+  "token_file": {"type": "string", "default": "", "description": "認証トークンファイルの絶対パス"}
+}

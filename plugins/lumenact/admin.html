@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LumenAct 表情プレビュー</title>
+<style>
+    :root { color-scheme: light dark; font: 14px system-ui, sans-serif; }
+    body { margin: 18px; display: grid; gap: 15px; }
+    h1 { font-size: 1.2rem; margin: 0; }
+    .fields, label { display: grid; gap: 7px; }
+    .fields { max-width: 42rem; gap: 14px; }
+    [hidden] { display: none; }
+    input, select, textarea, button { font: inherit; padding: 7px 9px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 7px; }
+    small, p { margin: 0; }
+    [role=status] { min-height: 1.5em; }
+</style>
+<h1>LumenAct 表情プレビュー</h1>
+<p>プレビューはデスクトップで VRM を表示している間に再生されます。</p>
+<p id="availability"></p>
+<div id="preview" class="fields">
+    <label>表情選択
+        <select id="clip"><option value="">設定した選択器で選ぶ</option></select>
+    </label>
+    <label>意図（中国語）
+        <input id="intent" maxlength="256" value="开心地微笑" autocomplete="off">
+    </label>
+    <label>台詞（任意）
+        <textarea id="text" maxlength="512" rows="2"></textarea>
+    </label>
+    <div class="controls">
+        <button type="button" id="play">プレビューを再生</button>
+        <button type="button" id="stop">停止</button>
+    </div>
+</div>
+<p id="result" role="status" aria-live="polite"></p>
+<details id="settings">
+    <summary>リソースと表情マップ</summary>
+    <div id="settings-form" class="fields">
+        <label>選択方式
+            <select id="mode"><option value="onnx">ONNX</option><option value="fixed">固定クリップ</option></select>
+        </label>
+        <label>公式リソースのフォルダー
+            <input id="resource-root" maxlength="1024" autocomplete="off">
+        </label>
+        <label>固定クリップ ID
+            <input id="fixed-clip" inputmode="numeric" pattern="[0-9]{1,5}" required>
+        </label>
+        <label>表情の強さ
+            <input id="strength" type="number" min="0" max="1" step="0.01" required>
+        </label>
+        <label>表情マップ（JSON）
+            <textarea id="mapping" maxlength="10000" rows="5" spellcheck="false"></textarea>
+        </label>
+        <button type="button" id="save">保存</button>
+    </div>
+    <p id="settings-status" role="status" aria-live="polite"></p>
+</details>
+<small id="credit"></small>
+<script>
+    const requests = new Map();
+    let sequence = 0;
+    let run = 0;
+    function call(action, args = {}) {
+        const id = "lumen-" + ++sequence;
+        return new Promise(resolve => {
+            const timer = setTimeout(() => {
+                requests.delete(id);
+                resolve({ state: "fallback", code: "request_timeout" });
+            }, 5000);
+            requests.set(id, { resolve, timer });
+            parent.postMessage({ type: "kei:call", id, action, arguments: args }, "*");
+        });
+    }
+    const get = id => document.getElementById(id);
+    const result = get("result");
+    const codes = {
+        assets_missing: "ONNX リソースが未設定です。収録クリップを選ぶか、設定からリソースを追加してください。",
+        runtime_missing: "ホスト Python に ONNX の依存関係がありません。",
+        asset_integrity: "リソースの検証に失敗しました。",
+        mapping_reserved: "口型・まばたき・視線は予約済みの表情です。",
+        no_mapped_curves: "このクリップに対応する表情チャンネルがありません。",
+        scope_denied: "このページにプレビュー権限が付与されていません。",
+        settings_invalid: "絶対パス、クリップ ID、強さとマップを確認してください。",
+        mapping_invalid: "表情マップの形式を確認してください。",
+    };
+    window.addEventListener("message", event => {
+        if (event.source !== parent) return;
+        const data = event.data;
+        if (data?.type !== "kei:result") return;
+        const request = requests.get(data.id);
+        if (!request) return;
+        clearTimeout(request.timer);
+        requests.delete(data.id);
+        request.resolve(data.ok ? data.result : { state: "fallback", code: data.error?.code });
+    });
+    async function status() {
+        const data = await call("status");
+        if (!data.samples) {
+            get("availability").textContent = codes[data.code] ?? "状態を取得できません。";
+            return;
+        }
+        get("availability").textContent = "選択器: " + data.mode + " · " + (codes[data.selectorState] ?? data.selectorState);
+        get("credit").textContent = data.credit;
+        if (get("clip").options.length === 1) {
+            for (const item of data.samples) {
+                const option = document.createElement("option");
+                option.value = item.id;
+                option.textContent = item.label + " · #" + item.id;
+                get("clip").append(option);
+            }
+        }
+    }
+    get("play").addEventListener("click", async () => {
+        const current = ++run;
+        const clipId = get("clip").value;
+        const args = { intent: get("intent").value, text: get("text").value };
+        if (clipId) args.clipId = clipId;
+        result.textContent = "クリップを選択中…";
+        let data = await call("preview", args);
+        while (current === run && data.state === "pending") {
+            await new Promise(resolve => setTimeout(resolve, 180));
+            if (current === run) data = await call("preview.poll", { jobId: data.jobId });
+        }
+        if (current !== run) return;
+        if (data.state === "ready") {
+            result.textContent = "デスクトップに送信: " + data.clip.label + " · #" + data.clip.clipId + " · " + data.selection.selector;
+        } else {
+            result.textContent = codes[data.code] ?? ("表情を再生できません（" + (data.code ?? "unknown") + "）。");
+        }
+        void status();
+    });
+    get("stop").addEventListener("click", async () => {
+        const current = ++run;
+        await call("preview.stop");
+        if (current === run) result.textContent = "停止しました。";
+    });
+    const settingsForm = get("settings-form");
+    const settingsStatus = get("settings-status");
+    async function loadSettings() {
+        const data = await call("settings.get");
+        settingsForm.hidden = !data.values;
+        if (!data.values) {
+            settingsStatus.textContent = "設定権限が必要です。";
+            return;
+        }
+        get("mode").value = data.values.selector_mode;
+        get("resource-root").value = data.values.resource_root;
+        get("fixed-clip").value = data.values.fixed_clip;
+        get("strength").value = data.values.strength;
+        get("mapping").value = JSON.stringify(data.values.mapping, null, 2);
+        settingsStatus.textContent = data.pendingReload ? "保存済み。プラグイン一覧から再読み込みしてください。" : "";
+    }
+    get("settings").addEventListener("toggle", () => {
+        if (get("settings").open) void loadSettings();
+    });
+    get("save").addEventListener("click", async () => {
+        try {
+            const values = {
+                selector_mode: get("mode").value, resource_root: get("resource-root").value.trim(),
+                fixed_clip: get("fixed-clip").value, strength: get("strength").valueAsNumber,
+                mapping: JSON.parse(get("mapping").value),
+            };
+            const data = await call("settings.save", { values });
+            if (data.state === "ready") await loadSettings();
+            else settingsStatus.textContent = codes[data.code] ?? "保存できませんでした。";
+        } catch {
+            settingsStatus.textContent = "JSON 形式を確認してください。";
+        }
+    });
+    void status();
+</script>
+</html>

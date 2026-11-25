@@ -1,0 +1,30 @@
+schemaVersion: 1
+apiVersion: 1
+id: kei.bilibili
+name: "Bilibili"
+version: "0.2.1"
+requiresFeatures: [config-schema-v1, mcp-broker-v1, plugin-pages-v1]
+permissions: [bili.read, bili.interact, mcp.call]
+actions:
+  - {id: query, scope: bili.read}
+  - {id: prepare, scope: bili.interact}
+  - {id: interact, scope: bili.interact}
+  - {id: capabilities, scope: bili.read}
+  - {id: preview, scope: bili.read}
+  - {id: schedule.status, scope: bili.read}
+  - {id: schedule.tick, scope: bili.read}
+  - {id: schedule.pause, scope: bili.read}
+  - {id: schedule.resume, scope: bili.read}
+entries:
+  - id: bilibili
+    title: "Bilibili"
+    slot: extensions
+    icon: "▶"
+    page: panel.html
+    actions: [query, prepare, interact, capabilities, preview]
+  - id: bilibili-admin
+    title: "Bilibili 設定"
+    slot: admin
+    icon: "▶"
+    page: admin.html
+    actions: [query, capabilities, schedule.status, schedule.tick, schedule.pause, schedule.resume]

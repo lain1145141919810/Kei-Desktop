@@ -1,0 +1,16 @@
+{
+  "name": "kei-character-stage",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test playback.test.mjs expression.test.mjs motion.test.mjs motion-provider.test.mjs speech-sync.test.mjs"
+  },
+  "dependencies": {
+    "@pixiv/three-vrm": "3.5.4",
+    "three": "0.184.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

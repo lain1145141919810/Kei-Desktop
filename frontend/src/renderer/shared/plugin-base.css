@@ -1,0 +1,101 @@
+/* Kei plugin base: injected by main ahead of every plugin page's own markup, so plain
+   semantic HTML in a package looks like the rest of Kei (reference/KeiDesktop v0.3.2).
+   Every rule is wrapped in :where() (zero specificity): a package's own CSS always wins.
+   The trusted frame host posts {type:"kei:theme"} and the page sets data-kei-theme. */
+:where(:root), :where(:root[data-kei-theme="hakuji"]) {
+  --ui-panel-solid: #ffffff; --ui-sunken: rgba(24, 30, 44, .055); --ui-text: #1b2130; --ui-sub: #687086;
+  --ui-line: rgba(24, 30, 44, .13); --ui-accent: #d2452a; --ui-accent-soft: rgba(210, 69, 42, .11);
+  --ui-on-accent: #ffffff; --ui-ok: #1f8a5b; --ui-bad: #c23a3a;
+  --font-ui: "BIZ UDPGothic", "Yu Gothic UI", "Hiragino Sans", "Meiryo", "Noto Sans JP", sans-serif;
+  --font-line: "BIZ UDPMincho", "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  color-scheme: light;
+}
+:where(:root[data-kei-theme="yoru"]) {
+  --ui-panel-solid: #15151a; --ui-sunken: rgba(255, 255, 255, .07); --ui-text: #f3efe8; --ui-sub: #a7a299;
+  --ui-line: rgba(255, 255, 255, .15); --ui-accent: #ffab3d; --ui-accent-soft: rgba(255, 171, 61, .14);
+  --ui-on-accent: #1b1305; --ui-ok: #6fd6a0; --ui-bad: #ff8d86;
+  --font-line: var(--font-ui);
+}
+:where(:root[data-kei-theme="sora"]) {
+  --ui-panel-solid: #f1f7ff; --ui-sunken: rgba(23, 60, 110, .07); --ui-text: #16304b; --ui-sub: #5a7692;
+  --ui-line: rgba(23, 60, 110, .16); --ui-accent: #1c74dc; --ui-accent-soft: rgba(28, 116, 220, .12);
+  --ui-on-accent: #ffffff; --ui-ok: #1b8a6a; --ui-bad: #c4424f;
+  --font-line: var(--font-ui);
+}
+
+:where(*, *::before, *::after) { box-sizing: border-box; }
+:where(html) { background: transparent; }
+:where(body) {
+  margin: 0; padding: 4px 6px 16px; background: transparent; color: var(--ui-text);
+  font-family: var(--font-ui); font-size: 14px; line-height: 1.7; -webkit-font-smoothing: antialiased;
+}
+
+/* The trusted window already shows the entry title, so a page's h1 becomes a kicker. */
+:where(h1) { margin: 2px 0 14px; font-size: 11px; font-weight: 700; letter-spacing: .24em; color: var(--ui-accent); }
+:where(h2) { margin: 18px 0 8px; font-size: 15px; font-weight: 700; }
+:where(h3) { margin: 14px 0 6px; font-size: 13px; font-weight: 700; color: var(--ui-sub); }
+:where(p) { margin: 0 0 10px; }
+:where(a) { color: var(--ui-accent); }
+:where(small) { color: var(--ui-sub); }
+:where(hr) { height: 1px; margin: 16px 0; border: 0; background: var(--ui-line); }
+
+/* Forms read as cards; each label stacks its caption above the control. */
+:where(form, fieldset) {
+  display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 12px;
+  margin: 0 0 12px; padding: 14px 16px; border: 1px solid var(--ui-line); border-radius: 14px; background: var(--ui-sunken);
+}
+:where(legend) { padding: 0 6px; font-size: 12px; font-weight: 700; color: var(--ui-sub); }
+:where(label) { display: flex; flex-direction: column; gap: 5px; flex: 1 1 150px; min-width: 0; font-size: 12px; font-weight: 700; color: var(--ui-sub); }
+:where(label:has(textarea)) { flex-basis: 100%; }
+:where(label:has(> input[type="checkbox"], > input[type="radio"])) { flex-direction: row; align-items: center; flex: none; color: var(--ui-text); font-size: 13px; }
+
+:where(input:not([type="checkbox"], [type="radio"], [type="range"]), select, textarea) {
+  width: 100%; min-width: 0; height: 36px; padding: 0 12px; border: 1px solid var(--ui-line); border-radius: 10px;
+  background: var(--ui-panel-solid); color: var(--ui-text); font: 400 14px/1.5 var(--font-ui);
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+:where(textarea) { height: auto; min-height: 84px; padding: 9px 12px; line-height: 1.7; resize: vertical; }
+:where(select) { padding-right: 30px; appearance: none; cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ui-sub) 50%), linear-gradient(135deg, var(--ui-sub) 50%, transparent 50%);
+  background-position: calc(100% - 17px) 50%, calc(100% - 12px) 50%; background-size: 5px 5px; background-repeat: no-repeat; }
+:where(input, select, textarea):focus { outline: none; border-color: var(--ui-accent); box-shadow: 0 0 0 3px var(--ui-accent-soft); }
+:where(input[type="checkbox"], input[type="radio"], input[type="range"], progress) { accent-color: var(--ui-accent); }
+:where(::placeholder) { color: var(--ui-sub); opacity: .8; }
+
+:where(button) {
+  height: 34px; padding: 0 16px; margin: 0 6px 8px 0; border: 1px solid var(--ui-line); border-radius: 17px;
+  background: var(--ui-panel-solid); color: var(--ui-text); font: 700 13px/1 var(--font-ui); cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease, transform 80ms ease;
+}
+:where(button:hover) { background: var(--ui-sunken); }
+:where(button:active) { transform: translateY(1px); }
+:where(button:disabled) { opacity: .45; cursor: default; transform: none; }
+:where(form button) { margin: 0; flex: none; }
+/* The submit button of a form is its primary action. */
+:where(form button:not([type="button"], [type="reset"])) { border-color: var(--ui-accent); background: var(--ui-accent); color: var(--ui-on-accent); }
+:where(form button:not([type="button"], [type="reset"]):hover) { filter: brightness(1.06); }
+:where(button:focus-visible, a:focus-visible) { outline: 2px solid var(--ui-accent); outline-offset: 2px; }
+
+/* Results and status lines. */
+:where(output) { display: block; margin: 0 0 12px; padding: 10px 14px; border-left: 3px solid var(--ui-accent); border-radius: 4px 12px 12px 4px;
+  background: var(--ui-accent-soft); font-size: 14px; overflow-wrap: anywhere; white-space: pre-wrap; }
+:where(output:empty, pre:empty, figure:empty, ul:empty, ol:empty) { display: none; }
+:where(pre, code) { font-family: ui-monospace, "Cascadia Mono", "Noto Sans Mono CJK JP", monospace; font-size: 12px; }
+:where(pre) { margin: 0 0 12px; padding: 12px 14px; border: 1px solid var(--ui-line); border-radius: 12px; background: var(--ui-sunken);
+  white-space: pre-wrap; overflow-wrap: anywhere; max-height: 360px; overflow: auto; }
+:where(figure) { margin: 0 0 12px; }
+:where(img, video, canvas) { max-width: 100%; border-radius: 10px; }
+
+:where(ul, ol) { display: flex; flex-direction: column; gap: 6px; margin: 0 0 12px; padding: 0; list-style: none; }
+:where(li) { padding: 9px 14px; border: 1px solid var(--ui-line); border-radius: 12px; background: var(--ui-panel-solid); overflow-wrap: anywhere; }
+:where(ol) { counter-reset: kei-item; }
+:where(ol > li) { counter-increment: kei-item; }
+:where(ol > li)::before { content: counter(kei-item); display: inline-block; min-width: 1.8em; margin-right: 6px; color: var(--ui-accent); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+:where(table) { width: 100%; margin: 0 0 12px; border-collapse: collapse; font-size: 13px; }
+:where(th, td) { padding: 7px 10px; border-bottom: 1px solid var(--ui-line); text-align: left; vertical-align: top; }
+:where(th) { font-size: 11px; color: var(--ui-sub); letter-spacing: .06em; }
+:where(details) { margin: 0 0 12px; }
+:where(summary) { cursor: pointer; font-weight: 700; }
+
+:where(*) { scrollbar-width: thin; scrollbar-color: var(--ui-line) transparent; }

@@ -1,0 +1,14 @@
+{
+  "resource_root": {
+    "type": "string",
+    "default": "",
+    "description": "HAST-SEC のローカルチェックアウト",
+    "hint": "固定版を npm ci で準備し、絶対パスを指定します。"
+  },
+  "node_executable": {
+    "type": "string", "default": "", "description": "Node.js の絶対パス（標準位置以外の場合）"
+  },
+  "git_executable": {
+    "type": "string", "default": "", "description": "Git の絶対パス（標準位置以外の場合）"
+  }
+}

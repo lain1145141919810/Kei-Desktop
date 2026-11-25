@@ -1,0 +1,4 @@
+node_modules/
+src/renderer/character/kei-character.js
+src/renderer/character/kei-character-assets.json
+assets/private-presentation/

@@ -1,0 +1,73 @@
+/* Shared controls, taken from reference/KeiDesktop v0.3.2 renderer/shell.css.
+   Colours and fonts come from theme.css. */
+
+.ui-panel {
+    border: 1px solid var(--ui-line);
+    background: var(--ui-panel);
+    backdrop-filter: blur(16px) saturate(1.15);
+    box-shadow: var(--ui-shadow);
+}
+
+.sheet-tool {
+    flex: none;
+    height: 32px;
+    padding: 0 14px;
+    border: 1px solid var(--ui-line);
+    border-radius: 16px;
+    background: transparent;
+    color: var(--ui-text);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 140ms ease;
+}
+.sheet-tool:hover { background: var(--ui-sunken); }
+.sheet-danger { color: var(--ui-bad); }
+.sheet-danger[data-confirm] { background: var(--ui-bad); border-color: var(--ui-bad); color: #fff; }
+
+.pill {
+    flex: 1;
+    height: 34px;
+    padding: 0 12px;
+    border: 1px solid var(--ui-line);
+    border-radius: 17px;
+    background: transparent;
+    color: var(--ui-text);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 140ms ease;
+}
+.pill:hover { background: var(--ui-sunken); }
+.pill.primary { border-color: var(--ui-accent); background: var(--ui-accent); color: var(--ui-on-accent); }
+.pill.wide { flex: none; width: 100%; }
+
+.segmented { display: flex; padding: 3px; border-radius: 12px; background: var(--ui-sunken); }
+.segmented button {
+    flex: 1;
+    height: 30px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--ui-sub);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.segmented button[aria-pressed="true"] { background: var(--ui-panel-solid); color: var(--ui-text); box-shadow: 0 1px 4px rgba(0, 0, 0, .14); }
+
+.plugin-frame {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 220px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color-scheme: light;
+}
+
+:is(button, select, textarea, input, a):focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 2px; }

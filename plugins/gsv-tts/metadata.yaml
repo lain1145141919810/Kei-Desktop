@@ -1,0 +1,19 @@
+schemaVersion: 1
+apiVersion: 1
+id: kei.gsv-tts
+name: "Local GPT-SoVITS (TTS)"
+version: "1.0.0"
+requiresFeatures:
+  - model-providers-v1
+  - config-schema-v1
+permissions:
+  - model.provide.tts
+actions:
+  - id: tts.synthesize
+    scope: model.provide.tts
+modelProviders:
+  - capability: tts
+    action: tts.synthesize
+    models:
+      - local-gsv
+    requiresCredential: false

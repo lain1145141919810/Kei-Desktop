@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<title>画面観察</title>
+<style>
+  .hero { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; padding: 18px; border: 1px solid var(--ui-line); border-radius: 18px; background: var(--ui-panel-solid); }
+  .eye { position: relative; flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: var(--ui-sunken); color: var(--ui-sub); }
+  .eye svg { width: 28px; height: 28px; }
+  [data-on="true"] .eye { background: var(--ui-accent-soft); color: var(--ui-accent); }
+  [data-on="true"] .eye::after { content: ""; position: absolute; inset: -4px; border: 2px solid var(--ui-accent); border-radius: 50%; animation: ring 2s ease-out infinite; }
+  @keyframes ring { from { opacity: .7; transform: scale(.9); } to { opacity: 0; transform: scale(1.25); } }
+  .hero-text { flex: 1; min-width: 0; }
+  #status { margin: 0; padding: 0; border: 0; background: none; font-size: 18px; font-weight: 700; }
+  #status:empty::before { content: "確認中…"; color: var(--ui-sub); }
+  #status:empty { display: block; }
+  .hint { margin: 2px 0 0; font-size: 12px; color: var(--ui-sub); }
+  .actions { display: flex; gap: 8px; }
+  .actions button { margin: 0; }
+  #select { border-color: var(--ui-accent); background: var(--ui-accent); color: var(--ui-on-accent); }
+  .privacy { margin-top: 16px; padding: 12px 14px; border-radius: 12px; background: var(--ui-sunken); font-size: 12px; color: var(--ui-sub); }
+</style>
+<body data-on="false">
+  <h1>画面観察</h1>
+  <div class="hero">
+    <div class="eye" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
+    <div class="hero-text">
+      <output id="status" aria-live="polite"></output>
+      <p class="hint">ケイが選んだ画面やウィンドウを見て、会話に役立てます。</p>
+    </div>
+  </div>
+  <div class="actions">
+    <button id="select">観察対象を選ぶ</button>
+    <button id="stop">停止</button>
+  </div>
+  <p class="privacy">観察は開始のたびに対象を選び直します。画像は保存されず、直近の短い説明だけが会話に使われます。Ctrl + Alt + S でも切り替えられます。</p>
+  <script>
+    const output = document.getElementById('status');
+    parent.postMessage({type:'kei:call', id:'status', action:'status', arguments:{}}, '*');
+    document.getElementById('select').onclick = () =>
+      parent.postMessage({type:'kei:capture-request', id:'select', enabled:true}, '*');
+    document.getElementById('stop').onclick = () =>
+      parent.postMessage({type:'kei:capture-request', id:'stop', enabled:false}, '*');
+    window.addEventListener('message', ({source,data}) => {
+      if (source !== parent) return;
+      if (data?.type === 'kei:result') output.textContent = data.ok
+        ? (data.result.enabled ? '観察中' : '停止中') : data.error.message;
+      if (data?.type === 'kei:event' && data.topic === 'observation.changed')
+        output.textContent = data.data.enabled ? '観察中' : '停止中';
+      document.body.dataset.on = String(output.textContent === '観察中');
+    });
+  </script>
+</body>
+</html>

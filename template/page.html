@@ -1,0 +1,20 @@
+<!doctype html>
+<meta charset="utf-8">
+<html lang="ja">
+<title>あいさつ</title>
+<body>
+  <button type="button">あいさつする</button>
+  <output aria-live="polite"></output>
+  <script>
+    const button = document.querySelector('button');
+    const output = document.querySelector('output');
+    button.addEventListener('click', () => {
+      parent.postMessage({type: 'kei:call', id: 'greet', action: 'greet', arguments: {}}, '*');
+    });
+    window.addEventListener('message', ({ source, data }) => {
+      if (source !== parent || data?.type !== 'kei:result' || data.id !== 'greet') return;
+      output.textContent = data.ok ? data.result.message : data.error.message;
+    });
+  </script>
+</body>
+</html>

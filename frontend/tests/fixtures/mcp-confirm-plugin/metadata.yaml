@@ -1,0 +1,4 @@
+{"schemaVersion": 1, "apiVersion": 1, "id": "studio.mcp-confirm", "name": "MCP 確認テスト", "version": "1.0.0",
+ "permissions": ["mcp.call", "test.bridge"],
+ "actions": [{"id": "bridge", "scope": "test.bridge"}],
+ "entries": [{"id": "desktop", "slot": "extensions", "page": "index.html", "title": "MCP 確認テスト", "actions": ["bridge"]}]}

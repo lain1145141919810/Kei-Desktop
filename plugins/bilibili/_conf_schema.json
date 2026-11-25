@@ -1,0 +1,40 @@
+{
+  "server_id": {
+    "type": "string",
+    "default": "bilibili",
+    "description": "Kei MCP サービス ID"
+  },
+  "interaction_tools": {
+    "type": "dict",
+    "default": {
+      "comment": "bili_reply",
+      "dynamic": "bili_send_dynamic"
+    },
+    "description": "操作とサーバーに存在するツールの対応。like と follow は対応するサーバーを登録した場合に指定します。"
+  },
+  "preview_tool": {
+    "type": "string",
+    "default": "bili_video_info",
+    "description": "プレビュー用の MCP ツール"
+  },
+  "schedule_enabled": {
+    "type": "bool",
+    "default": false,
+    "description": "検索スケジュールを使う"
+  },
+  "schedule_start": {
+    "type": "string",
+    "default": "09:00",
+    "description": "開始時刻（日本時間）"
+  },
+  "schedule_end": {
+    "type": "string",
+    "default": "10:00",
+    "description": "終了時刻（日本時間）"
+  },
+  "schedule_keyword": {
+    "type": "string",
+    "default": "注目動画",
+    "description": "スケジュール検索語"
+  }
+}

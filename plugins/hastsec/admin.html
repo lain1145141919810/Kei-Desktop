@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8"><title>HAST-SEC 動作ライブラリ</title>
+<style>
+body{font:14px system-ui,sans-serif;color:#241637;background:#f7f4fc;margin:16px}h1{font-size:18px}
+label{display:block;margin:10px 0}input,select,button{font:inherit;padding:5px}input{box-sizing:border-box;width:100%}
+output{display:block;white-space:pre-wrap;margin-top:12px;overflow-wrap:anywhere}button{margin:4px 4px 4px 0}
+</style>
+<h1>HAST-SEC 動作ライブラリ</h1>
+<label>固定版チェックアウトのパス <input id="root" maxlength="1024"></label>
+<button id="save">保存</button><button id="refresh">動作ライブラリを更新</button>
+<label>動作 <select id="motion"></select></label>
+<p>適用部位 <span id="mask">—</span></p>
+<details><summary>必要な VRM 人型ボーン</summary><p id="bones"></p></details>
+<button id="play" disabled>ステージで試す</button><button id="stop">停止</button>
+<output id="status" aria-live="polite"></output>
+<output id="diagnostics" aria-label="求解診断"></output>
+<script>
+const $=id=>document.getElementById(id),pending=new Map();
+let id=0;
+let motions=[];
+function call(action,args={}) {
+    const token="h-"+(++id);
+    return new Promise(resolve=>{
+        pending.set(token,resolve);
+        parent.postMessage({type:"kei:call",id:token,action,arguments:args},"*");
+    });
+}
+function status(value) { $("status").textContent=value; }
+addEventListener("message",({source,data})=>{
+    if (source!==parent) return;
+    if (data?.type==="kei:result") {
+        pending.get(data.id)?.(data.ok?data.result:{state:"fallback",code:data.error?.code});
+        pending.delete(data.id);
+    }
+    if (data?.type==="kei:event" && data.topic==="hastsec.diagnostics") $("diagnostics").textContent=JSON.stringify(data.data,null,2);
+});
+async function refresh() {
+    const library=await call("library");
+    motions=library.motions??[];
+    $("motion").replaceChildren(...motions.map(m=>new Option(m.title,m.id)));
+    $("bones").textContent=(library.bones??[]).join(" · ");
+    $("play").disabled=!motions.length;
+    showMask();
+    status(library.state==="ready"?library.bones.length+" 骨格 · "+library.motions.length+" 動作":library.code);
+}
+function showMask() {
+    $("mask").textContent=motions.find(m=>m.id===$("motion").value)?.mask.join(" · ")??"—";
+}
+$("motion").onchange=showMask;
+$("save").onclick=async()=>{
+    const result=await call("settings.save",{resource_root:$("root").value});
+    status(result.state==="ready"?"保存しました。プラグインを再読み込みしてください。":result.code);
+};
+$("refresh").onclick=refresh;
+$("play").onclick=async()=>{
+    const result=await call("preview",{motion:$("motion").value});
+    status(result.state==="requested"?"VRM ステージに動作を送りました。":result.code);
+};
+$("stop").onclick=async()=>{await call("preview.stop");status("停止しました。");};
+call("settings.get").then(result=>{$("root").value=result.resource_root??"";});
+refresh();
+</script>
+</html>

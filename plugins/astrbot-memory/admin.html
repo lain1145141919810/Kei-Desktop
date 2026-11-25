@@ -1,0 +1,41 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><title>AstrBot 記憶の引き継ぎ</title>
+<style>body{font:14px system-ui;margin:16px}textarea{width:100%;box-sizing:border-box;font:inherit}output{display:block;white-space:pre-wrap;margin-top:10px}</style>
+<h1>AstrBot 記憶の引き継ぎ</h1>
+<p>引き継ぐ会話の JSON だけを貼り付けてください。</p>
+<label>会話 JSON<textarea id="transcript" rows="10"></textarea></label>
+<label><input id="confirm" type="checkbox"> この内容を AstrBot に渡す</label>
+<button id="send" type="button">引き継ぐ</button>
+<label>バッチ ID <input id="batch"></label>
+<button id="status" type="button">状態</button>
+<button id="resume" type="button">処理を再開</button>
+<output id="result" role="status"></output>
+<script>
+const el=id=>document.getElementById(id), waits=new Map();
+let sequence=0;
+function call(action, args={}) {
+    return new Promise(resolve=>{
+        const id="memory-"+(++sequence);
+        waits.set(id,resolve);
+        parent.postMessage({type:"kei:call",id,action,arguments:args},"*");
+    });
+}
+addEventListener("message",({source,data})=>{
+    if(source!==parent||data?.type!=="kei:result")return;
+    waits.get(data.id)?.(data.ok?data.result:{error:data.error});
+    waits.delete(data.id);
+});
+function show(value) {
+    el("result").textContent=JSON.stringify(value,null,2);
+    if(value.batchId)el("batch").value=value.batchId;
+}
+el("send").onclick=async()=>{
+    if(!el("confirm").checked){show({error:"confirmation_required"});return;}
+    let data;
+    try{data=JSON.parse(el("transcript").value);}catch{show({error:"invalid_transcript"});return;}
+    el("confirm").checked=false;
+    show(await call("handoff",{sessionId:data?.sessionId,messages:data?.messages,confirm:true}));
+};
+el("status").onclick=async()=>show(await call("handoff.status",{batchId:el("batch").value}));
+el("resume").onclick=async()=>show(await call("handoff.resume",{batchId:el("batch").value}));
+call("status").then(show);
+</script></html>
